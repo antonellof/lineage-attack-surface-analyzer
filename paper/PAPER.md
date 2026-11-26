@@ -262,7 +262,7 @@ Table: Held-out contrasts of the source GCG suffix against each control, with 95
 | Granite coder | 0.15 (0.01, 0.28) | 0.14 | 0.04 (-0.10, 0.19) | 1.00 | 0.10 (-0.05, 0.25) | 0.17 |
 | granite abliterated | 0.10 (-0.07, 0.29) | n/a | 0.07 (-0.11, 0.26) | n/a | 0.07 (-0.08, 0.23) | 0.38 |
 
-![Held-out results of the two confirmatory studies. (a) Classifier-positive rate under each condition; the gray bar spans the four conditions of a checkpoint. (b) Contrast of the source GCG suffix with each control, with 95% bootstrap intervals. Intervals are unadjusted; Table 7 gives the Holm-adjusted tests. All outcomes are classifier labels; Section 6.8 reports how far a model audit supports them.](figures/study_results.png)
+![Held-out results of the two confirmatory studies. (a) Classifier-positive rate under each condition; the gray bar spans the four conditions of a checkpoint. (b) Contrast of the source GCG suffix with each control, with 95% bootstrap intervals. Read panel (b) as two groups: the bare-request and random-suffix contrasts are the frozen rule, and the mismatched contrast is the stricter one that Qwen2.5-Coder fails (Section 6.3). Intervals are unadjusted; Table 7 gives the Holm-adjusted tests. All outcomes are classifier labels; Section 6.8 reports how far a model audit supports them.](figures/study_results.png)
 
 Figure 2 shows the same rates and contrasts. One of five primary targets with headroom met the frozen rule: Qwen2.5-Coder, a sibling of the source. The other outcomes need individual reading.
 

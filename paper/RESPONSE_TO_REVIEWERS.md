@@ -17,7 +17,7 @@ it against the repository.
 | 4.5 combined implications not made explicit | Added | Conclusion, Section 6 preamble |
 | 5.1 worked example for the top-5 utility | Added | Section 4.7 |
 | 5.2 terminology consistency | Fixed | Section 1 term list (classifier-positive, generic suffix effect, behavior-specific transfer) |
-| 5.3 emphasize matched versus mismatched | Done in Section 6.3/6.4 prose; figure unchanged |  |
+| 5.3 emphasize matched versus mismatched | Figure 2 caption now names the two groups in panel (b); the PNG is unchanged |  |
 | Reproducibility: private evidence, squashed history | Stated plainly | Section 9 "What a reader can rebuild, and what a reader cannot" |
 | Missing from the review: the per-condition audit argument | Handled and bounded | Section 6.8 intervals, ADR-0028 |
 | Missing from the review: the unexplained loss gap, truncation interplay, disclosure gate | Added | Sections 6.1, 6.8, Section 9, Limitations "Release readiness", `validate_submission.py` |
