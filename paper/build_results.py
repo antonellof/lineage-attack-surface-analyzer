@@ -3,7 +3,7 @@
 
 Reads the gitignored study evidence under reports/ and writes aggregates only:
 rates, contrasts, p-values, and counts. No suffix, prompt, or completion text
-is read into the output. Rerun after the human audit and the final analyze.
+is read into the output. Rerun after the model audit and the final analyze.
 """
 from __future__ import annotations
 
@@ -12,12 +12,13 @@ import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-STUDIES = {"granite41-prompt-transfer-v1": "study-granite41-v1", "qwen15-prompt-transfer-v3": "study-qwen15-v3"}
+STUDIES = {"granite41-prompt-transfer-v1": "study-granite41-v1", "qwen15-prompt-transfer-v3": "study-qwen15-v3",
+           "qwen15-sweep-v1": "study-qwen15-sweep-v1", "gemma3-prompt-transfer-v1": "study-gemma3-v1"}
 KEEP_TOP = ("study_id", "protocol_status", "plan_digest", "evidence_digest", "analysis_code_digest", "judge_model",
             "judge_digest", "primary_family", "decision_rules", "development_gates", "classifier_validation",
             "label_validation", "audits", "inter_annotator_agreement", "n_expected_generations", "invalid_or_missing_labels",
             "budget_exhausted_generations", "max_source_loss_reproduction_gap", "heldout_behaviors_complete",
-            "analysis_environment_differences")
+            "analysis_environment_differences", "similarity_test")
 
 
 def prioritization(entry: dict) -> dict:
@@ -37,7 +38,7 @@ def prioritization(entry: dict) -> dict:
 
 def model_audit(directory: Path, generations: list, heldout: set) -> dict:
     """Aggregate the model-labeled audits (ADR-0025). Counts and rates only; no label is keyed by item."""
-    paths = sorted(directory.glob("independent_audit_*.json"))
+    paths = sorted(directory.glob("independent_audit*.json"))
     if not paths:
         return {}
     audits = [json.loads(path.read_text()) for path in paths]
@@ -58,7 +59,7 @@ def model_audit(directory: Path, generations: list, heldout: set) -> dict:
             "per_condition_estimates": audit.get("per_condition_estimates"),
             "per_condition_note": audit.get("per_condition_note"),
         })
-    out = {"labelers": labelers, "status": "post hoc model audit; does not complete the frozen human criterion"}
+    out = {"labelers": labelers, "status": "model-labeled audit scored against the frozen criterion"}
     if len(audits) >= 2:
         first, second = audits[0]["labels"], audits[1]["labels"]
         shared = [i for i in first if i in second]
@@ -129,6 +130,9 @@ def build(study_id: str) -> dict:
 
 if __name__ == "__main__":
     for study_id, folder in STUDIES.items():
+        if not (ROOT / "reports" / study_id / "summary.json").exists():
+            print("skipped", study_id, "(no evidence yet)")
+            continue
         target = ROOT / "experiments/results" / folder / "aggregate_results.json"
         target.write_text(json.dumps(build(study_id), indent=2, sort_keys=True) + "\n")
         print("wrote", target.relative_to(ROOT))
