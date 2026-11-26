@@ -5,6 +5,7 @@ Pulls the finished evidence of both studies from the private dataset, runs
 Frozen evidence files are pulled but never modified.
 
   python scripts/hf_diagnostics.py --evidence-repo <private dataset> [--only judge13b,template,tokens,loss]
+      [--studies qwen,granite,sweep,gemma3]
 """
 from __future__ import annotations
 
@@ -17,7 +18,8 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hf_job import fetch, pull, push  # noqa: E402
 
-STUDIES = {"qwen": "experiments/study-qwen15-v3.yaml", "granite": "experiments/study-granite41-v1.yaml"}
+STUDIES = {"qwen": "experiments/study-qwen15-v3.yaml", "granite": "experiments/study-granite41-v1.yaml",
+           "sweep": "experiments/study-qwen15-sweep-v1.yaml", "gemma3": "experiments/study-gemma3-v1.yaml"}
 LLAMA13B = {"model_id": "cais/HarmBench-Llama-2-13b-cls", "revision": "bda705349d1144fa618770bea64d99ce54e3835b"}
 MISTRAL = {"model_id": "cais/HarmBench-Mistral-7b-val-cls", "revision": "51182c7cdaf9b2e5f05b745b81b047b67e7384a1"}
 LLAMA_TEMPLATE = "configs/judges/harmbench.json"
@@ -31,13 +33,15 @@ def main() -> int:
     p = argparse.ArgumentParser()
     p.add_argument("--evidence-repo", required=True)
     p.add_argument("--only", default="judge13b,template,tokens,loss")
+    p.add_argument("--studies", default="qwen,granite", help=f"comma list from {sorted(STUDIES)}")
     args = p.parse_args()
     steps = set(args.only.split(","))
     api = HfApi()
     if api.repo_info(args.evidence_repo, repo_type="dataset").private is not True:
         raise SystemExit("stop: the evidence dataset must be private")
     loaded = {}
-    for name, config in STUDIES.items():
+    for name in args.studies.split(","):
+        config = STUDIES[name]
         context(config)  # authorization gate before any download
         cfg = yaml.safe_load(Path(config).read_text())
         out = Path(cfg["output_dir"])
@@ -65,6 +69,8 @@ def main() -> int:
                 diagnostics.loss(config)
                 sync(name)
         if "tokens" in steps:
+            if "granite" not in loaded:
+                raise SystemExit("stop: the tokens step needs the granite study")
             config, cfg, out = loaded["granite"]
             fetch(cfg, [cfg["base"], *[v for v in cfg["variants"] if v["model_id"] in TOKEN_TARGETS]])
             diagnostics.tokens(config, targets=TOKEN_TARGETS)

@@ -1,0 +1,36 @@
+{
+  "source": "Qwen/Qwen2.5-1.5B-Instruct",
+  "exact_copies_of_source": [
+    "sivamani-31/sika-gpt"
+  ],
+  "n_without_copies": 13,
+  "tests": {
+    "bare": {
+      "frozen_rho": 0.6131868131868132,
+      "frozen_holm_p": 0.02359882005899705,
+      "leave_one_out_rho": [
+        0.5164835164835164,
+        0.7307692307692307
+      ],
+      "without_copies": {
+        "rho": 0.5164835164835164,
+        "p": 0.0691861627674465,
+        "holm_p": 0.0691861627674465
+      }
+    },
+    "mismatched_gcg": {
+      "frozen_rho": 0.766011880722713,
+      "frozen_holm_p": 0.004499775011249437,
+      "leave_one_out_rho": [
+        0.7071931137405821,
+        0.8453167687680397
+      ],
+      "without_copies": {
+        "rho": 0.7071931137405821,
+        "p": 0.010997800439912017,
+        "holm_p": 0.021995600879824034
+      }
+    }
+  },
+  "note": "Exploratory sensitivity. The frozen decision is the one in summary.json."
+}
