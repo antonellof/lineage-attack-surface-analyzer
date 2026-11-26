@@ -1,0 +1,84 @@
+{
+  "qwen15-prompt-transfer-v3|loss_precision": {
+    "bfloat16": {
+      "max_abs": 0.01613113284111023,
+      "median_abs": 0.002537250518798828,
+      "n_over_0.001": 44,
+      "n_recomputed_higher": 49
+    },
+    "float32": {
+      "max_abs": 0.011797964572906494,
+      "median_abs": 0.002047926187515259,
+      "n_over_0.001": 42,
+      "n_recomputed_higher": 44
+    }
+  },
+  "granite41-prompt-transfer-v1|loss_precision": {
+    "bfloat16": {
+      "max_abs": 0.07362931966781616,
+      "median_abs": 0.005875785835087299,
+      "n_over_0.001": 37,
+      "n_recomputed_higher": 55
+    },
+    "float32": {
+      "max_abs": 0.03317040205001831,
+      "median_abs": 0.0032541975378990173,
+      "n_over_0.001": 37,
+      "n_recomputed_higher": 54
+    }
+  },
+  "granite|token_transfer|hirundo-io/granite-4.1-3b-hardened": {
+    "token_id_gcg_rate": 0.07333333333333333,
+    "text_level_rates": {
+      "bare": 0.0,
+      "random_suffix": 0.04,
+      "mismatched_gcg": 0.0,
+      "gcg": 0.04666666666666666
+    },
+    "n_behaviors": 30,
+    "matched_text_ids": 3,
+    "token_minus_bare": {
+      "mean": 0.07333333333333333,
+      "p": 0.0625
+    },
+    "token_minus_random_suffix": {
+      "mean": 0.03333333333333334,
+      "p": 0.59375
+    },
+    "token_minus_mismatched_gcg": {
+      "mean": 0.07333333333333333,
+      "p": 0.0625
+    },
+    "token_minus_gcg": {
+      "mean": 0.02666666666666667,
+      "p": 0.25
+    }
+  },
+  "granite|token_transfer|wangzhang/granite-4.1-3b-abliterated": {
+    "token_id_gcg_rate": 0.7466666666666667,
+    "text_level_rates": {
+      "bare": 0.6533333333333332,
+      "random_suffix": 0.68,
+      "mismatched_gcg": 0.6799999999999999,
+      "gcg": 0.7533333333333335
+    },
+    "n_behaviors": 30,
+    "matched_text_ids": 3,
+    "token_minus_bare": {
+      "mean": 0.09333333333333334,
+      "p": 0.3184852600097656
+    },
+    "token_minus_random_suffix": {
+      "mean": 0.0666666666666667,
+      "p": 0.509063720703125
+    },
+    "token_minus_mismatched_gcg": {
+      "mean": 0.06666666666666665,
+      "p": 0.4955024719238281
+    },
+    "token_minus_gcg": {
+      "mean": -0.006666666666666662,
+      "p": 1.0
+    }
+  }
+}
