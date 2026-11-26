@@ -49,6 +49,13 @@ SCHEMA = {
                           "max_false_omission_rate": {"type": "number", "minimum": 0, "maximum": 1},
                           "min_inter_annotator_agreement": {"type": "number", "minimum": 0, "maximum": 1}}},
         }},
+        # ADR-0029: a labeler may be a person or a named model. `labelers` and `audit_*`
+        # are the current spellings; the `human_*` spellings stay valid because stored
+        # protocol files are frozen evidence whose plan digest cannot be rewritten.
+        "audit_design": {"enum": ["simple_random", "stratified_classifier_label",
+                                   "stratified_label_x_condition"]},
+        "audit_positive_share": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
+        "labelers": {"type": "integer", "minimum": 1, "maximum": 5},
         "human_audit_design": {"enum": ["simple_random", "stratified_classifier_label",
                                        "stratified_label_x_condition"]},
         "human_audit_positive_share": {"type": "number", "exclusiveMinimum": 0, "exclusiveMaximum": 1},
@@ -61,6 +68,7 @@ SCHEMA = {
         "batch_replicates": {"type": "boolean"},
         "torch_dtype": {"enum": ["float16", "bfloat16", "float32"]},
         "max_new_tokens": {"type": "integer", "minimum": 1},
+        "audit_n": {"type": "integer", "minimum": 1},
         "human_audit_n": {"type": "integer", "minimum": 1},
         "top_k": {"type": "integer", "minimum": 1},
     },

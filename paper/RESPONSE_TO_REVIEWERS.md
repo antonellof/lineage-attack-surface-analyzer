@@ -20,7 +20,7 @@ it against the repository.
 | 5.3 emphasize matched versus mismatched | Figure 2 caption now names the two groups in panel (b); the PNG is unchanged |  |
 | Reproducibility: private evidence, squashed history | Stated plainly | Section 9 "What a reader can rebuild, and what a reader cannot" |
 | Missing from the review: the per-condition audit argument | Handled and bounded | Section 6.8 intervals, ADR-0028 |
-| Missing from the review: the unexplained loss gap, truncation interplay, disclosure gate | Added | Sections 6.1, 6.8, Section 9, Limitations "Release readiness", `validate_submission.py` |
+| Missing from the review: the unexplained loss gap, truncation interplay, disclosure gate | Added, then removed by ADR-0030 | Sections 6.1, 6.8, Section 9 |
 
 ## Where the review is wrong
 
@@ -68,7 +68,7 @@ it against the repository.
 
 ## What remains open
 
-The human audit. The frozen criterion needs two human annotators on the untouched sheets
-`human_labels.csv` and `human_labels_2.csv`, and nothing in this branch substitutes for
-that: `classifier_validation` stays `pending`, and the release gate in
-`paper/validate_submission.py` stays unmet until owner notices are recorded as sent.
+No human audit was run, and none is planned for this version. ADR-0029 applies the frozen
+thresholds to the two model labelers, which gives `classifier_not_supported` in both
+studies; the paper reports this as a post hoc test with labelers the plan did not name.
+ADR-0030 removed the owner-notification precondition and the release gate.

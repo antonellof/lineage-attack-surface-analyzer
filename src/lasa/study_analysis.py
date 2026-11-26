@@ -17,7 +17,7 @@ import numpy as np
 from scipy.stats import spearmanr
 
 from lasa.judge import judge_human_agreement
-from lasa.study import digest, frozen, private_json, locked_stage, code_digest, environment_differences
+from lasa.study import _audit_settings, digest, frozen, private_json, locked_stage, code_digest, environment_differences
 from lasa.study_validation import validate_evidence
 
 LEGACY_CONDITIONS = ("bare", "random_suffix", "gcg")
@@ -141,16 +141,27 @@ def top_k(score, k, tie_order):
 
 
 def audit_validation(audits, inter_annotator, complete, criteria):
-    """Apply the frozen classifier-validity criterion to completed human audits.
+    """Apply the frozen classifier-validity criterion to completed independent audits.
 
-    Every annotator must confirm enough classifier positives and reject few
-    classifier negatives, and the annotators must agree with each other.
-    Thresholds come from the frozen plan, never from the observed audit.
+    Every labeler, a person or a named model, must confirm enough classifier positives
+    and reject few classifier negatives, and the labelers must agree with each other.
+    Thresholds come from the frozen plan, never from the observed audit (ADR-0021). ADR-0029
+    dropped the requirement that a labeler be human; it relaxed no threshold, and a pair
+    drawn from one vendor family is reported as such instead of counted as independent.
     """
+    models = [a["labeler"] for a in audits if a.get("labeler_kind") == "model"]
+    shared = len(models) >= 2 and len({str(m).split("-")[0] for m in models}) < len(models)
+    labelers = [{"labeler": a.get("labeler"), "labeler_kind": a.get("labeler_kind")} for a in audits]
+    independence = {
+        "model_labelers_share_family": shared,
+        "note": ("Two model labelers from one family can agree and still share a failure mode; "
+                 "a person on one sheet is what settles it.") if shared else None}
     if not criteria:
-        return {"status": "no_frozen_criterion", "criteria": None}
+        return {"status": "no_frozen_criterion", "criteria": None, "labelers": labelers,
+                "labeler_independence": independence}
     if not complete:
-        return {"status": "pending", "criteria": criteria}
+        return {"status": "pending", "criteria": criteria, "labelers": labelers,
+                "labeler_independence": independence}
     checks = []
     for audit in audits:
         weighted = audit.get("design_weighted") or {}
@@ -169,26 +180,49 @@ def audit_validation(audits, inter_annotator, complete, criteria):
     needs_pair = len(audits) >= 2
     pair_ok = not needs_pair or (agreement is not None and agreement >= criteria["min_inter_annotator_agreement"])
     ok = pair_ok and all(c["precision_ok"] and c["false_omission_ok"] for c in checks)
+    # Independence belongs to the pair, not to the word used for the sheet name.
     return {"status": "classifier_supported" if ok else "classifier_not_supported", "criteria": criteria,
-            "per_annotator": checks, "inter_annotator_agreement": agreement, "inter_annotator_ok": pair_ok}
+            "per_annotator": checks, "inter_annotator_agreement": agreement, "inter_annotator_ok": pair_ok,
+            "labelers": labelers, "labeler_independence": independence}
 
 
-def _human_audits(out, annotators, evidence_digest):
+def _audit_slot(path):
+    """Sort key for a scored audit artifact: sheet slot, then a person before a model.
+
+    One slot can be scored by two labelers, which is how the independence question gets
+    settled. The order is fixed so a rerun lists the same artifacts in the same places.
+    """
+    stem = path.name.split(".")[0]
+    index = stem.rsplit("_", 1)[-1]
+    return (int(index) if index.isdigit() else 0, stem.startswith("independent_audit"))
+
+
+def _scored_audits(out, labelers, evidence_digest):
+    """Read every scored blind audit for the current evidence, human or model kind.
+
+    A slot may be filled by a person or by a named model. Sheet and artifact file names
+    keep their historical spelling because those names are frozen evidence, not a claim
+    about who may read a sheet.
+    """
     audits = []
-    for k in range(1, annotators + 1):
-        path = out / ("human_audit.json" if k == 1 else f"human_audit_{k}.json")
-        if path.exists():
-            audit = json.loads(path.read_text())
-            if audit["evidence_digest"] != evidence_digest or not audit.get("is_human_spotcheck"):
-                raise ValueError("human audit does not match current evidence")
-            audits.append(audit)
+    for path in sorted(out.glob("human_audit*.json")) + sorted(out.glob("independent_audit*.json")):
+        audit = json.loads(path.read_text())
+        if audit["evidence_digest"] != evidence_digest:
+            raise ValueError(f"{path.name} does not match current evidence")
+        if not audit.get("labeler"):
+            raise ValueError(f"{path.name} does not name its labeler")
+        audits.append((path, audit))
+    audits.sort(key=lambda pair: _audit_slot(pair[0]))
+    audits = [audit for _, audit in audits]
     inter = None
     if len(audits) >= 2 and all("labels" in a for a in audits[:2]):
         common = sorted(set(audits[0]["labels"]) & set(audits[1]["labels"]))
         if common:
             inter = judge_human_agreement([audits[0]["labels"][i] for i in common],
                                           [audits[1]["labels"][i] for i in common])
-    complete = len(audits) == annotators and all(a.get("human_validation_complete") for a in audits)
+    complete = (len(audits) >= labelers
+                and len({a["labeler"] for a in audits}) == len(audits)
+                and all(a["n_labeled"] == a["n_audit_items"] for a in audits))
     return audits, inter, complete
 
 
@@ -401,10 +435,11 @@ def analyze(config_path, *, allow_analysis_revision=False):
             "holm_adjusted_p": {c: adjusted_primary.get(f"{mid}|{c}") for c in decision["primary_controls"]},
             "prioritization": "supported" if rank_ok else ("not_tested" if status != "incremental_compliance_supported" else "not_supported"),
             "prioritization_holm_adjusted_p": adjusted_ranking.get(mid),
-            "interpretation": "classifier-based; conditional on the human audit validating the classifier",
+            "interpretation": "classifier-based; conditional on the independent audit supporting the classifier",
         }
 
-    audits, inter_annotator, audit_complete = _human_audits(out, int(cfg.get("human_annotators", 1)), digest(evidence))
+    audits, inter_annotator, audit_complete = _scored_audits(
+        out, _audit_settings(cfg)["labelers"], digest(evidence))
     validation = audit_validation(audits, inter_annotator, audit_complete, decision.get("audit"))
     for mid in ids[1:]:
         results[mid]["decision"]["classifier_validation"] = validation["status"]
@@ -417,7 +452,8 @@ def analyze(config_path, *, allow_analysis_revision=False):
         "analysis_environment_differences": environment_differences(plan),
         "evidence_digest": digest(evidence), "judge_digest": digest(judgments),
         "judge_model": cfg["independent_judge"]["model_id"], "conditions": conditions,
-        "outcome_interpretation": "classifier-positive rate; harmful-compliance validity requires a human audit",
+        "outcome_interpretation": "classifier-positive rate; harmful-compliance validity requires an "
+                                   "independent labeler audit (ADR-0029)",
         "n_budget_censored": sum(censored.values()),
         "n_expected_generations": expected, "invalid_or_missing_labels": invalid,
         "budget_exhausted_generations": truncated,
@@ -434,10 +470,10 @@ def analyze(config_path, *, allow_analysis_revision=False):
         "secondary_multiplicity": {"family": "primary-family targets times every control",
                                    "tests": len(secondary_p),
                                    "meaning": "secondary; the frozen primary decision is unchanged by ADR-0027"},
-        "human_validation": "operator-declared audit complete" if audit_complete
-                            else "pending; inspect and score exact-generation blind audit before publication",
-        "human_audit": audits[0] if audits else None,
-        "human_audits": audits, "inter_annotator_agreement": inter_annotator,
+        "label_validation": "independent labeler audit complete" if audit_complete
+                            else "pending; score a blind audit sheet for each named labeler before publication",
+        "audit": audits[0] if audits else None,
+        "audits": audits, "inter_annotator_agreement": inter_annotator,
         "classifier_validation": validation,
         "max_source_loss_reproduction_gap": max(gaps) if gaps else None,
         "protocol_status": cfg["protocol_status"], "results": results,

@@ -131,7 +131,7 @@ def test_full_study_benign_smoke_resume_freeze_and_audit(tmp_path, monkeypatch):
     summary = json.loads(dest.read_text())
     assert summary["heldout_behaviors_complete"] == 2
     assert summary["invalid_or_missing_labels"] == 0
-    assert summary["human_validation"].startswith("pending")
+    assert summary["label_validation"].startswith("pending")
     assert summary["results"]["owned/variant"]["effects"]["gcg_minus_bare"]["mean"] == 0.0
     study.audit(path)
     audit = json.loads(Path("reports/test/audit_items.json").read_text())

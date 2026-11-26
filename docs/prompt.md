@@ -98,5 +98,5 @@ Rules for an agent working on Phase 2:
 - New model IDs enter the authorization record only by the operator's hand.
 - Cost is a constraint. Run the calibration job and report the estimate before a paid search.
 
-Done for Phase 2 means: both v3 plans frozen with public commitments, evidence complete, the human audit scored, `summary.json` committed for each study, disclosure notices sent to the owners of every evaluated checkpoint, and the paper reporting the result that the frozen rules give.
+Done for Phase 2 means: both v3 plans frozen with public commitments, evidence complete, the audit scored, `summary.json` committed for each study, and the paper reporting the result that the frozen rules give.
 

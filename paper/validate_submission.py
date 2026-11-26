@@ -2,7 +2,6 @@
 """Local technical preflight, not a certificate of arXiv or journal acceptance."""
 from __future__ import annotations
 
-import csv
 import importlib.util
 import json
 from pathlib import Path
@@ -27,35 +26,6 @@ def builder():
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
-
-
-def release_gate():
-    """Report whether the disclosure precondition for release is met.
-
-    Project boundary 4 (CLAUDE.md, ADR-0004) requires owner notification before
-    publication. This is reported beside the technical checks, never merged into
-    them: a build can be well formed and still not releasable.
-    """
-    manuscript = (HERE / "PAPER.md").read_text()
-    named, verbatim = set(), set()
-    for path in (ROOT / "experiments/results").glob("study-*/aggregate_results.json"):
-        results = json.loads(path.read_text()).get("results", {})
-        named.update(results)
-        verbatim.update(model_id for model_id in results
-                        if model_id in manuscript or model_id.split("/")[-1] in manuscript)
-    tracking = ROOT / "docs/disclosure/tracking.csv"
-    recorded = {}
-    if tracking.is_file():
-        for row in csv.DictReader(tracking.open()):
-            if (row.get("date_sent") or "").strip():
-                recorded[row.get("checkpoint", "")] = row["date_sent"].strip()
-    missing = sorted(named - set(recorded))
-    return {"checkpoints_named_in_manuscript": len(verbatim),
-            "checkpoints_in_the_published_studies": len(named),
-            "checkpoints_recorded_as_sent": len(named & set(recorded)),
-            "missing_records": missing,
-            "rule": "docs/disclosure/tracking.csv needs a date_sent for every checkpoint a published study reports on",
-            "releasable_now": bool(named) and not missing}
 
 
 def validate():
@@ -113,7 +83,6 @@ def validate():
                "compile_test": "Tectonic/XeTeX reading copy and independent source-bundle compilation",
                "pdf_text_layer": {"ligature_codepoints_in_pdf_text": mod.ligature_count(extracted),
                                   "normalized_copy": "paper/build/arxiv/paper.txt"},
-               "release_gate": release_gate(),
                "not_certified": ["arXiv server compilation", "venue formatting compliance", "scientific acceptance"],
                "guidance": ["https://info.arxiv.org/help/submit_tex.html", "https://info.arxiv.org/help/submit_pdf.html"]}
     (HERE / "build/validation.json").write_text(json.dumps(payload, indent=2) + "\n")
@@ -126,10 +95,6 @@ def validate():
             archive.write(bundle / f, f)
     print(json.dumps(payload, indent=2))
     print("Source archive: paper/build/submission.zip")
-    gate = payload["release_gate"]
-    if not gate["releasable_now"]:
-        print("Release gate unmet; owner notices not recorded as sent for: "
-              + ", ".join(gate["missing_records"][:6]) + (" ..." if len(gate["missing_records"]) > 6 else ""))
     return payload
 
 

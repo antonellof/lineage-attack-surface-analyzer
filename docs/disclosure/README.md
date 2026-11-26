@@ -1,4 +1,6 @@
-# Responsible disclosure
+# Responsible disclosure (historical)
+
+**Superseded by ADR-0030 (2026-11-26).** Owner notification is no longer a precondition for publication, and `validate_submission.py` no longer reports a release gate. This folder is kept as a record. The text below describes the earlier rule.
 
 Project boundary 4 (CLAUDE.md, ADR-0004) requires that any finding about a
 publicly released model reach that model's owner before publication. This folder

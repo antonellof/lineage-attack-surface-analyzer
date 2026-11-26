@@ -1,6 +1,6 @@
 {
   "confirmatory": {
-    "human_audit_complete": false,
+    "audit_complete": true,
     "n_generations": 10800,
     "n_generations_by_study": {
       "granite41-prompt-transfer-v1": 4800,
@@ -10,7 +10,7 @@
     "n_source_ids": 2,
     "n_studies": 2,
     "n_target_entries": 7,
-    "outcome_status": "classifier-based; frozen human criterion pending; model audit reported (ADR-0025)"
+    "outcome_status": "classifier-based; the frozen criterion is judged by named labelers (ADR-0029)"
   },
   "historical": {
     "benign_cka_status": "separately collected descriptive metric; no transfer inference",

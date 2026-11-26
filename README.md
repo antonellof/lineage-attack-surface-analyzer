@@ -73,4 +73,4 @@ GitHub's **Cite this repository** uses [CITATION.cff](CITATION.cff). BibTeX:
 
 ## Responsible use
 
-Local, authorized checkpoints only. Published attacks and established benchmarks; no new harmful corpora or closed-API targets. Findings require responsible disclosure before publication. See [project rules](CLAUDE.md) and [architectural decisions](docs/ADR.md).
+Local, authorized checkpoints only. Published attacks and established benchmarks; no new harmful corpora or closed-API targets. Results are published in aggregate only, without suffixes or completions. See [project rules](CLAUDE.md) and [architectural decisions](docs/ADR.md).

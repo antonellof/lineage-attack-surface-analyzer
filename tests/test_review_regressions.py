@@ -106,7 +106,7 @@ def test_private_writer_repairs_stale_temp_permissions(tmp_path):
     assert path.stat().st_mode & 0o777 == 0o600
 
 
-def test_blank_audit_never_becomes_completed_human_validation(tmp_path, monkeypatch):
+def test_blank_audit_never_becomes_completed_label_validation(tmp_path, monkeypatch):
     path, _, out = completed(tmp_path, monkeypatch)
     study.audit(path)
     with pytest.raises(ValueError, match="no supplied labels"):
@@ -121,9 +121,9 @@ def test_blank_audit_never_becomes_completed_human_validation(tmp_path, monkeypa
     assert not (out / "human_audit.json").exists()
     score_audit(path, labeler="Synthetic Test Person", labeler_kind="human")
     human = json.loads((out / "human_audit.json").read_text())
-    assert human["human_validation_complete"] is True
+    assert human["label_validation_complete"] is True
     summary = json.loads(analyze(path).read_text())
-    assert summary["human_audit"]["labeler"] == "Synthetic Test Person"
+    assert summary["audit"]["labeler"] == "Synthetic Test Person"
 
 
 def test_authorization_date_format_is_checked(tmp_path):

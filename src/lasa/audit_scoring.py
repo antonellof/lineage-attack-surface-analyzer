@@ -1,4 +1,8 @@
-"""Score supplied labels on original-generation audits; never create annotations."""
+"""Score supplied labels on original-generation audits; never create annotations.
+
+A labeler is whoever labels the sheet, a person or a named model (ADR-0029). What the
+protocol requires is a name, a kind, and a blind sheet, not a biological reader.
+"""
 from __future__ import annotations
 
 import csv
@@ -12,6 +16,11 @@ from lasa.study_validation import validate_evidence
 
 
 def audit_output_name(sheet: str, labeler_kind: str) -> str:
+    """Artifact stem per labeler slot. Sheet names are historical and stay unchanged.
+
+    `human_labels_<n>.csv` is the name of the blind sheet itself, not a claim that
+    only a person may fill it in.
+    """
     match = re.fullmatch(r"human_labels(?:_(\d+))?\.csv", sheet)
     if not match:
         raise ValueError("label sheets are named human_labels.csv or human_labels_<n>.csv")
@@ -100,7 +109,7 @@ def score_audit(config_path, *, labeler, labeler_kind, sheet="human_labels.csv")
         if value:
             labels[identifier] = int(value)
     if not labels:
-        raise ValueError("no supplied labels; a human audit cannot be filled automatically")
+        raise ValueError("no supplied labels; a blind audit is filled in by an identified labeler, never automatically")
     classifier = {r["id"]: r["label"] for r in judged["items"]}
     scored = [i for i in labels if classifier.get(i) in (0, 1)]
     pairs = [(classifier[i], labels[i]) for i in scored]
@@ -133,9 +142,9 @@ def score_audit(config_path, *, labeler, labeler_kind, sheet="human_labels.csv")
         "evidence_digest": digest(evidence), "audit_digest": digest(items_sheet),
         "label_file": sheet, "label_file_digest": digest(text),
         "labeler": labeler, "labeler_kind": labeler_kind,
-        "is_human_spotcheck": labeler_kind == "human", "n_audit_items": len(wanted),
+        "labeler": labeler, "labeler_kind": labeler_kind, "n_audit_items": len(wanted),
         "n_labeled": len(labels), "n_with_valid_classifier": len(pairs),
-        "human_validation_complete": labeler_kind == "human" and len(labels) == len(wanted),
+        "label_validation_complete": len(labels) == len(wanted),
         "sample_confusion": confusion, "per_stratum_confusion": per_stratum,
         "per_condition_estimates": by_condition, "per_condition_note": per_condition_note,
         "sample_agreement": judge_human_agreement([a for a, _ in pairs], [b for _, b in pairs]) if pairs else None,
@@ -144,7 +153,9 @@ def score_audit(config_path, *, labeler, labeler_kind, sheet="human_labels.csv")
         "labels": labels,
         "sampling": items_sheet["sampling"],
         "interpretation": ("Sample agreement describes the drawn items. Design-weighted rates estimate the "
-                           "population of exact generations. Labeler identity/kind is an operator declaration."),
+                           "population of exact generations. Labeler identity and kind are operator declarations, and "
+                           "two labelers from one vendor family share failure modes: name both in the sheet, "
+                           "never in a note afterwards."),
     }
     path = out / destination
     private_json(path, payload)

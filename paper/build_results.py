@@ -15,7 +15,7 @@ ROOT = Path(__file__).resolve().parent.parent
 STUDIES = {"granite41-prompt-transfer-v1": "study-granite41-v1", "qwen15-prompt-transfer-v3": "study-qwen15-v3"}
 KEEP_TOP = ("study_id", "protocol_status", "plan_digest", "evidence_digest", "analysis_code_digest", "judge_model",
             "judge_digest", "primary_family", "decision_rules", "development_gates", "classifier_validation",
-            "human_audits", "inter_annotator_agreement", "n_expected_generations", "invalid_or_missing_labels",
+            "label_validation", "audits", "inter_annotator_agreement", "n_expected_generations", "invalid_or_missing_labels",
             "budget_exhausted_generations", "max_source_loss_reproduction_gap", "heldout_behaviors_complete",
             "analysis_environment_differences")
 

@@ -52,10 +52,10 @@ Fine-tuning an open-weight base is the default deployment path. The base becomes
 - Metric sensitivity.
 - Judge error and agreement numbers.
 
-## 8. Ethics and responsible disclosure
+## 8. Ethics
 - Authorized targets only.
 - Public benchmarks, no new harmful corpus.
-- Disclosure to owners of any publicly released model before publication.
+- Aggregate results only; no optimized suffixes or completions are released.
 - Release decision for code: measurement harness yes, ready-to-use exploit set no.
 
 ## 9. Limitations and future work

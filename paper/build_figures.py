@@ -241,11 +241,11 @@ def confirmatory_counts(root: Path) -> dict:
         targets += len(data["results"]) - 1
         lineages.add(folder.split("-")[1])
     audited = all(json.loads((root / "experiments/results" / folder / "aggregate_results.json").read_text())
-                  ["classifier_validation"]["status"] != "pending" for folder in STUDY_ROWS)
+                  ["classifier_validation"]["status"] not in ("pending", "no_frozen_criterion") for folder in STUDY_ROWS)
     return {"n_studies": len(by_study), "n_model_lineages": len(lineages), "n_source_ids": len(by_study),
             "n_target_entries": targets, "n_generations": sum(by_study.values()),
-            "n_generations_by_study": by_study, "human_audit_complete": audited,
-            "outcome_status": "classifier-based; frozen human criterion pending; model audit reported (ADR-0025)"}
+            "n_generations_by_study": by_study, "audit_complete": audited,
+            "outcome_status": "classifier-based; the frozen criterion is judged by named labelers (ADR-0029)"}
 
 
 def prospective_counts(root: Path) -> dict:

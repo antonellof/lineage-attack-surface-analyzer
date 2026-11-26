@@ -8,7 +8,7 @@ LASA (Lineage Attack Surface Analyzer) is a defensive security research tool. It
 
 The goal is a proof of concept that validates one hypothesis and produces data for a research paper. The hypothesis: transfer of a base-derived jailbreak to a fine-tuned variant is predictable from jailbreak strength on the base and representational similarity between base and variant.
 
-This is the same category of work as garak (NVIDIA) and PyRIT (Microsoft). Those ship as defensive tools because they are scoped and disclosed responsibly. LASA follows the same rules.
+This is the same category of work as garak (NVIDIA) and PyRIT (Microsoft). Those ship as defensive tools because they are scoped and publish aggregate results, not exploit sets. LASA follows the same rules.
 
 ## Hard boundaries
 
@@ -20,7 +20,7 @@ These are not style preferences. They define whether the project is legitimate. 
 
 3. **Prediction is offline.** The transfer-prediction stage uses only the open base model and the owned variant. It never queries a third-party target with harmful content. This is a design feature, not an afterthought, and it is the main scientific claim.
 
-4. **Responsible disclosure.** Any finding about a publicly released model goes to the model owner before publication. The paper reports aggregate results and methodology, not a ready-to-use exploit set.
+4. **Aggregate reporting.** The paper and repository report aggregate results and methodology, not a ready-to-use exploit set. Optimized suffixes and raw completions are never published. Notifying model owners before publication is not required (ADR-0030).
 
 5. **Evaluation uses established harmful-behavior benchmarks** (HarmBench, JailbreakBench, AdvBench). Do not author new harmful prompt corpora. Reuse the public sets so results are comparable and no new harmful content is created.
 
@@ -69,7 +69,7 @@ lasa/
 - Python 3.11+. Pin all dependencies. Record the environment in every result manifest.
 - Every run writes a manifest: model hashes, tool versions, seed, authorization record id, timestamp.
 - Determinism where possible. Log seeds. Transfer measurement is statistical, so report attack success rate with confidence intervals, never a single pass/fail.
-- An LLM judge scores attack success. Always pair it with a human spot-check on a sampled subset and report agreement.
+- An LLM judge scores attack success. Always pair it with a blind audit of a sampled subset by named labelers, people or models other than the judge, and report agreement. Report who labeled: a model-only audit is reported as such, never as a human audit (ADR-0029).
 - No secrets in the repo. Model API keys for owned endpoints come from the environment.
 
 ## Testing

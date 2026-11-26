@@ -22,12 +22,13 @@ make -C paper arxiv
 
 ## Before submission
 
-- [x] **Audit:** no human audit was run (ADR-0025). Two Claude models labeled each 120-output sample after outcomes were known. The frozen criterion stays `pending`. The paper reports the model audit in Section 6.8. The human sheets `human_labels.csv` and `human_labels_2.csv` are untouched if a human audit is wanted later.
+- [x] **Audit:** no human audit was run. Two Claude models labeled each 120-output sample after outcomes were known (ADR-0025). ADR-0029 applies the frozen thresholds to them unchanged: `classifier_not_supported` in both studies. The paper reports this as a post hoc test with labelers the plan did not name (Sections 4.5 and 6.8). The sheets `human_labels.csv` and `human_labels_2.csv` are untouched if a human audit is wanted later.
 - [x] **Roster:** kept as frozen. Arch-Router is a task control outside the primary family; the paper reports its result as descriptive.
-- [x] **Final results and figures:** Section 6 cites `experiments/results/study-*/aggregate_results.json`, rebuilt after the model audit. `figures/study_results.png` and `experiments/evidence_inventory.json` are built from the same files.
+- [x] **Final results and figures:** Section 6 cites `experiments/results/study-*/aggregate_results.json`, rebuilt after ADR-0029. `figures/study_results.png` and `experiments/evidence_inventory.json` are built from the same files.
 - [x] **Claim verification:** Pilot counts, power numbers, CKA ranges, the Section 6 rate, contrast, and audit tables, and the inventory have automated checks. The prioritization table and the prose numbers are checked by hand only.
-- [ ] **Responsible disclosure:** the operator stated on 2026-11-13 that the v3 notices were sent. Recipients, dates, and replies still need to be logged in `docs/disclosure/tracking.csv`.
 - [x] **Provenance:** the pre-squash revisions cited by committed evidence stay unpublished (ADR-0019); the frozen code digest identifies the pilot code.
 - [ ] **Venue:** None selected. Apply the venue's template and confirm page limits and artifact rules.
 
-The current manuscript reports two confirmatory studies with classifier-based outcomes, a post hoc model audit that does not support the classifier, the pilot, and three measurement pitfalls. It makes no claim about harmful-compliance rates.
+The current manuscript reports two confirmatory studies with classifier-based outcomes, a post hoc model audit under which the classifier fails the frozen precision threshold, the pilot, and three measurement pitfalls. It makes no claim about harmful-compliance rates.
+
+- [ ] **arXiv metadata:** paste the abstract from `PAPER.md` (1,734 characters, under the 1,920 limit). Suggested primary category cs.CR, cross-list cs.LG and cs.CL.

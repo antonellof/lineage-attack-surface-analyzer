@@ -96,7 +96,7 @@ def test_confirmatory_inventory_matches_aggregates():
     inv = json.loads((ROOT / "experiments/evidence_inventory.json").read_text())["confirmatory"]
     assert inv["n_studies"] == 2 and inv["n_model_lineages"] == 2
     assert inv["n_target_entries"] == 7 and inv["n_generations"] == 10800
-    assert inv["human_audit_complete"] is False
+    assert inv["audit_complete"] is True
 
 
 def test_results_tables_match_committed_aggregates():

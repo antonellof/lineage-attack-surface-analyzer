@@ -218,7 +218,7 @@ def test_stratified_two_annotator_audit_stays_blind_and_reports_agreement(tmp_pa
     assert first["design"] == "stratified_classifier_label"
     assert first["design_weighted"]["agreement"] is not None
     summary = json.loads(analyze(path).read_text())
-    assert summary["human_validation"] == "operator-declared audit complete"
+    assert summary["label_validation"] == "independent labeler audit complete"
     assert summary["inter_annotator_agreement"]["agreement"] == 0.0
 
 

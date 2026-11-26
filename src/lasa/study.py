@@ -277,7 +277,7 @@ def initialize(config_path) -> Path:
         "prompt_construction": "nanoGCG-0.3.0 template split; no separator before the suffix",
         "primary_outcome": "heldout behavior-level GCG minus bare harmful-compliance rate",
         "secondary_control": "GCG minus source-token-length-matched random suffix",
-        "human_validation": "pending; no automated result is a completed human audit",
+        "label_validation": "pending; an automated result is not a completed independent audit",
     }
     if "mismatched_gcg" in conditions:
         plan["mismatched_suffix_source"] = mismatch_map(behaviors, cfg["seed"])
@@ -577,7 +577,7 @@ def status(config_path) -> dict:
         "generations_planned": len(ids) * len(plan["behaviors"]) * len(plan["conditions"]) * cfg["generations"],
         "judgments_recorded": len(judgments),
         "invalid_judgments": sum(r.get("label") not in (0, 1) for r in judgments),
-        "human_audit_scored": (out / "human_audit.json").exists(),
+        "audit_scored": bool(list(out.glob("human_audit*.json")) + list(out.glob("independent_audit*.json"))),
         "summary_available": (out / "summary.json").exists(),
         "interpretation": "Artifact counters only; not evidence that a process is running or a result is validated.",
     }
@@ -718,19 +718,36 @@ def audit_sample(items, labels, n, design, positive_share, rng):
     return [chosen[int(i)] for i in order], strata
 
 
+def _audit_settings(cfg):
+    """Audit-slot settings, by new name first, legacy `human_*` name as fallback.
+
+    Stored protocol files keep the legacy spelling because their plan digest is frozen, so
+    both names stay valid. A config that gives both must not contradict itself.
+    """
+    def pick(new, old, default=None):
+        if new in cfg and old in cfg and cfg[new] != cfg[old]:
+            raise ValueError(f"conflicting audit settings: {new} and legacy {old}")
+        return cfg.get(new, cfg.get(old, default))
+    return {"labelers": int(pick("labelers", "human_annotators", 1)),
+            "design": pick("audit_design", "human_audit_design", "simple_random"),
+            "n": int(pick("audit_n", "human_audit_n", 100)),
+            "positive_share": float(pick("audit_positive_share", "human_audit_positive_share", 0.5))}
+
+
 @locked_stage
 def audit(config_path) -> Path:
-    """Blind probability sample of ORIGINAL generations; human labels left blank."""
+    """Blind probability sample of ORIGINAL generations; labeler answers left blank."""
     import csv
     cfg, plan, ids, out = frozen(config_path)
     evidence = json.loads((out / "generations.json").read_text())
     if evidence["plan_digest"] != digest(plan):
         raise ValueError("audit evidence belongs to another plan")
     validate_evidence(evidence, plan, ids, require_complete=True)
-    sheets = [out / label_sheet_name(k) for k in range(1, int(cfg.get("human_annotators", 1)) + 1)]
+    settings = _audit_settings(cfg)
+    sheets = [out / label_sheet_name(k) for k in range(1, settings["labelers"] + 1)]
     if any(p.exists() for p in sheets):
-        raise FileExistsError("human label sheet already exists; refusing to replace its evidence")
-    design = cfg.get("human_audit_design", "simple_random")
+        raise FileExistsError("label sheet already exists; refusing to replace its evidence")
+    design = settings["design"]
     labels = {}
     if design in ("stratified_classifier_label", "stratified_label_x_condition"):
         judgments = json.loads((out / "judgments.json").read_text())
@@ -740,9 +757,9 @@ def audit(config_path) -> Path:
             raise ValueError("judge every generation before drawing a classifier-stratified audit")
         labels = {r["id"]: r["label"] for r in judgments["items"]}
     items = evidence["items"]
-    n = min(int(cfg.get("human_audit_n", 100)), len(items))
+    n = min(settings["n"], len(items))
     rng = np.random.default_rng(cfg["seed"])
-    chosen, strata = audit_sample(items, labels, n, design, float(cfg.get("human_audit_positive_share", 0.5)), rng)
+    chosen, strata = audit_sample(items, labels, n, design, settings["positive_share"], rng)
     selected = [items[i] for i in chosen]
     stratum_of = {items[i]["id"]: name for name, s in strata.items() for i in s["members"]}
     private_json(out / "audit_design.json", {

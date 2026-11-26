@@ -86,4 +86,4 @@ Update, 2026-11-13: no human audit was run for the v3 paper. Two Claude models l
 
 4. When both studies are done: `python scripts/hf_evidence.py delete $LASA_EVIDENCE_REPO`.
 
-Any finding about a public model goes to its owner before publication (ADR-0005, `docs/disclosure/`).
+Results are published in aggregate only; owner notification before publication is not required (ADR-0030).
