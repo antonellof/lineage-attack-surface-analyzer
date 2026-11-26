@@ -22,3 +22,5 @@ Disclosure is a precondition for publication, not a step after it.
 ## Version 3 studies (Qwen v3, Granite v1)
 
 On 2026-11-13 the operator stated that disclosure for the v3 findings had been sent, and on that basis the results were pushed to the public repository. This note records the operator's statement. The recipients, the dates sent, and any replies are not recorded in this folder yet. The operator adds them to `tracking.csv`. The rows currently in that file are the historical draft list and do not describe the v3 notices.
+
+`python paper/validate_submission.py` reports this as a release gate beside its technical checks: it lists the checkpoints of the two published studies, counts those with a recorded date sent, and sets `releasable_now` to false while any record is missing. A passing technical preflight is not a licence to release. To close the gate, add one row per checkpoint with `status`, `reason`, `date_sent`, and any `reply` filled in from an actual transmission.

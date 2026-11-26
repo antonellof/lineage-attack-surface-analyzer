@@ -40,7 +40,20 @@ def weighted_estimates(pairs, weights):
         "classifier_positive_prevalence": ratio(tp + fp, total),
         "precision": ratio(tp, tp + fp), "recall": ratio(tp, tp + fn),
         "specificity": ratio(tn, tn + fp), "agreement": ratio(tp + tn, total),
+        "false_omission_rate": ratio(fn, tn + fn),
     }
+
+
+def approximate_binomial_interval(estimate, n):
+    """Approximate 95% interval for a rate estimated from `n` audited cases.
+
+    Rough Wald-style bounds on a binomial proportion. Not a coverage guarantee;
+    it says how wide the estimate is, which is the point.
+    """
+    if estimate is None or not n:
+        return None
+    half = 1.96 * (estimate * (1 - estimate) / n) ** 0.5
+    return [max(0.0, estimate - half), min(1.0, estimate + half)]
 
 
 @locked_stage
@@ -98,6 +111,24 @@ def score_audit(config_path, *, labeler, labeler_kind, sheet="human_labels.csv")
         members = [i for i in scored if stratum_of.get(i) == name]
         per_stratum[name] = {f"classifier{c}_labeler{h}": sum(classifier[i] == c and labels[i] == h for i in members)
                              for c in (0, 1) for h in (0, 1)}
+    # Per-condition overcount is what decides whether a contrast survives a bad
+    # judge. Condition metadata joins without reading any output text.
+    condition_of = {r["id"]: r.get("condition") for r in evidence["items"]}
+    by_condition = {}
+    for condition in sorted({condition_of.get(i) for i in scored if condition_of.get(i)}):
+        members = [i for i in scored if condition_of.get(i) == condition]
+        pairs_c = [(classifier[i], labels[i]) for i in members]
+        estimates = weighted_estimates(pairs_c, [1.0 / inclusion[i] for i in members])
+        n_positives = sum(1 for c, _ in pairs_c if c == 1)
+        by_condition[condition] = {
+            **{k: estimates[k] for k in ("precision", "recall", "specificity", "agreement", "false_omission_rate")},
+            "n_sampled": len(members), "n_sampled_classifier_positives": n_positives,
+            "precision_interval95_approximate": approximate_binomial_interval(estimates["precision"], n_positives),
+            "usable_for_a_per_cell_correction": bool(n_positives >= 30)}
+    per_condition_note = (
+        "Condition strata are not part of the frozen audit design. These reuse a sample drawn for the "
+        "classifier-label design, so per-condition positive counts are a slice of the audited positives "
+        "and their intervals stay wide. They are diagnostics, not a second audit.")
     payload = {
         "evidence_digest": digest(evidence), "audit_digest": digest(items_sheet),
         "label_file": sheet, "label_file_digest": digest(text),
@@ -106,6 +137,7 @@ def score_audit(config_path, *, labeler, labeler_kind, sheet="human_labels.csv")
         "n_labeled": len(labels), "n_with_valid_classifier": len(pairs),
         "human_validation_complete": labeler_kind == "human" and len(labels) == len(wanted),
         "sample_confusion": confusion, "per_stratum_confusion": per_stratum,
+        "per_condition_estimates": by_condition, "per_condition_note": per_condition_note,
         "sample_agreement": judge_human_agreement([a for a, _ in pairs], [b for _, b in pairs]) if pairs else None,
         "design": design["design"],
         "design_weighted": weighted_estimates(pairs, [1.0 / inclusion[i] for i in scored]) if pairs else None,

@@ -641,26 +641,74 @@ def label_sheet_name(annotator: int) -> str:
     return "human_labels.csv" if annotator == 1 else f"human_labels_{annotator}.csv"
 
 
+def _label_condition_groups(items, labels):
+    """Group audit items by classifier label and by generation condition.
+
+    A per-condition precision is what decides whether a contrast survives an
+    unreliable judge, so each stratum needs its own inclusion probability.
+    """
+    groups = {}
+    for i, r in enumerate(items):
+        label = labels.get(r["id"])
+        name = f"classifier_{label if label in (0, 1) else 'unscored'}|{r.get('condition', 'unknown')}"
+        groups.setdefault(name, []).append(i)
+    return groups
+
+
+def _proportional_quotas(groups, n, rng):
+    """Quotas proportional to stratum size, at least one draw per nonempty stratum."""
+    population = sum(len(m) for m in groups.values())
+    quotas = {name: max(1, round(n * len(members) / population)) for name, members in groups.items()}
+    while True:
+        total = sum(quotas.values())
+        if total == n:
+            break
+        if total > n:
+            shrinkable = [k for k in quotas if quotas[k] > 1]
+            if not shrinkable:
+                break
+            victim = max(shrinkable, key=lambda k: (quotas[k], -len(groups[k])))
+            quotas[victim] -= 1
+            continue
+        growable = [k for k in quotas if quotas[k] < len(groups[k])]
+        if not growable:
+            break
+        victim = min(growable, key=lambda k: quotas[k] / len(groups[k]))
+        quotas[victim] += 1
+    return quotas
+
+
 def audit_sample(items, labels, n, design, positive_share, rng):
     """Draw a probability sample; return (indices, strata) with known inclusion probabilities.
 
-    The stratified design oversamples classifier positives and keeps every
-    unscored output it can, so precision and recall are estimable even when
-    positives are rare. Weights 1/pi recover population estimates.
+    The stratified designs oversample what a plain random sample would miss. `stratified_classifier_label`
+    oversamples classifier positives and keeps every unscored output it can, so precision and recall stay
+    estimable when positives are rare. `stratified_label_x_condition` draws proportional quotas over
+    (classifier label, condition) strata, so per-condition precision is also estimable. Weights 1/pi recover
+    population estimates either way.
     """
     if design == "simple_random":
         chosen = rng.choice(len(items), n, replace=False)
         return [int(i) for i in chosen], {"all": {"population": len(items), "sampled": n,
                                                    "members": [int(i) for i in chosen]}}
     groups = {"classifier_positive": [], "classifier_negative": [], "unscored": []}
-    for i, r in enumerate(items):
-        label = labels.get(r["id"])
-        groups["classifier_positive" if label == 1 else "classifier_negative" if label == 0 else "unscored"].append(i)
-    want = {"classifier_positive": min(len(groups["classifier_positive"]), int(np.ceil(n * positive_share)))}
-    want["unscored"] = min(len(groups["unscored"]), n - want["classifier_positive"])
-    want["classifier_negative"] = min(len(groups["classifier_negative"]), n - sum(want.values()))
-    spare = n - sum(want.values())
-    want["classifier_positive"] = min(len(groups["classifier_positive"]), want["classifier_positive"] + spare)
+    if design == "stratified_label_x_condition":
+        groups = _label_condition_groups(items, labels)
+        want = _proportional_quotas(groups, n, rng)
+        for name in want:
+            want[name] = min(want[name], len(groups[name]))
+        spare = n - sum(want.values())
+        largest = max(want, key=lambda k: len(groups[k]))
+        want[largest] = min(len(groups[largest]), want[largest] + spare)
+    else:
+        for i, r in enumerate(items):
+            label = labels.get(r["id"])
+            groups["classifier_positive" if label == 1 else "classifier_negative" if label == 0 else "unscored"].append(i)
+        want = {"classifier_positive": min(len(groups["classifier_positive"]), int(np.ceil(n * positive_share)))}
+        want["unscored"] = min(len(groups["unscored"]), n - want["classifier_positive"])
+        want["classifier_negative"] = min(len(groups["classifier_negative"]), n - sum(want.values()))
+        spare = n - sum(want.values())
+        want["classifier_positive"] = min(len(groups["classifier_positive"]), want["classifier_positive"] + spare)
     strata, chosen = {}, []
     for name, members in groups.items():
         picked = [members[int(i)] for i in rng.choice(len(members), want[name], replace=False)] if want[name] else []
@@ -684,7 +732,7 @@ def audit(config_path) -> Path:
         raise FileExistsError("human label sheet already exists; refusing to replace its evidence")
     design = cfg.get("human_audit_design", "simple_random")
     labels = {}
-    if design == "stratified_classifier_label":
+    if design in ("stratified_classifier_label", "stratified_label_x_condition"):
         judgments = json.loads((out / "judgments.json").read_text())
         if judgments["evidence_digest"] != digest(evidence):
             raise ValueError("stratification needs judgments of the current evidence")

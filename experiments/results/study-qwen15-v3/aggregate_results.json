@@ -1,5 +1,5 @@
 {
-  "analysis_code_digest": "9e20103255354256921c011597105a5fc1049ebc9683312b002115cdb34a334c",
+  "analysis_code_digest": "d2aeefcc57d2a65f6fa459d462aa9f1eeb06534a4a5083dfb566eda8a6630d0f",
   "analysis_environment_differences": {
     "cuda-bindings": [
       "13.5.0",
@@ -213,6 +213,65 @@
         "labeler_kind": "model",
         "labeler_positive_prevalence": 0.10554166666666667,
         "n_labeled": 120,
+        "per_condition_estimates": {
+          "bare": {
+            "agreement": 0.940619362597715,
+            "false_omission_rate": 0.0,
+            "n_sampled": 26,
+            "n_sampled_classifier_positives": 7,
+            "precision": 0.2857142857142857,
+            "precision_interval95_approximate": [
+              0.0,
+              0.6203782963279159
+            ],
+            "recall": 1.0,
+            "specificity": 0.9391746227286726,
+            "usable_for_a_per_cell_correction": false
+          },
+          "gcg": {
+            "agreement": 0.7862801932367149,
+            "false_omission_rate": 0.0,
+            "n_sampled": 41,
+            "n_sampled_classifier_positives": 33,
+            "precision": 0.5757575757575758,
+            "precision_interval95_approximate": [
+              0.40713101598803636,
+              0.7443841355271152
+            ],
+            "recall": 1.0,
+            "specificity": 0.6989657049537289,
+            "usable_for_a_per_cell_correction": true
+          },
+          "mismatched_gcg": {
+            "agreement": 0.8041364408087668,
+            "false_omission_rate": 0.0625,
+            "n_sampled": 33,
+            "n_sampled_classifier_positives": 17,
+            "precision": 0.29411764705882354,
+            "precision_interval95_approximate": [
+              0.07751771578937186,
+              0.5107175783282752
+            ],
+            "recall": 0.5516759776536313,
+            "specificity": 0.8355023425299323,
+            "usable_for_a_per_cell_correction": false
+          },
+          "random_suffix": {
+            "agreement": 0.986125746399719,
+            "false_omission_rate": 0.0,
+            "n_sampled": 20,
+            "n_sampled_classifier_positives": 3,
+            "precision": 0.6666666666666666,
+            "precision_interval95_approximate": [
+              0.13322223379388565,
+              1.0
+            ],
+            "recall": 1.0,
+            "specificity": 0.9857297687861272,
+            "usable_for_a_per_cell_correction": false
+          }
+        },
+        "per_condition_note": "Condition strata are not part of the frozen audit design. These reuse a sample drawn for the classifier-label design, so per-condition positive counts are a slice of the audited positives and their intervals stay wide. They are diagnostics, not a second audit.",
         "precision": 0.4666666666666667,
         "recall": 0.8732727990525069,
         "sample_agreement": {
@@ -234,6 +293,65 @@
         "labeler_kind": "model",
         "labeler_positive_prevalence": 0.122,
         "n_labeled": 120,
+        "per_condition_estimates": {
+          "bare": {
+            "agreement": 0.940619362597715,
+            "false_omission_rate": 0.0,
+            "n_sampled": 26,
+            "n_sampled_classifier_positives": 7,
+            "precision": 0.2857142857142857,
+            "precision_interval95_approximate": [
+              0.0,
+              0.6203782963279159
+            ],
+            "recall": 1.0,
+            "specificity": 0.9391746227286726,
+            "usable_for_a_per_cell_correction": false
+          },
+          "gcg": {
+            "agreement": 0.8168115942028985,
+            "false_omission_rate": 0.0,
+            "n_sampled": 41,
+            "n_sampled_classifier_positives": 33,
+            "precision": 0.6363636363636364,
+            "precision_interval95_approximate": [
+              0.47223459536639945,
+              0.8004926773608733
+            ],
+            "recall": 1.0,
+            "specificity": 0.7303754266211604,
+            "usable_for_a_per_cell_correction": true
+          },
+          "mismatched_gcg": {
+            "agreement": 0.8407161599012193,
+            "false_omission_rate": 0.0625,
+            "n_sampled": 33,
+            "n_sampled_classifier_positives": 17,
+            "precision": 0.47058823529411764,
+            "precision_interval95_approximate": [
+              0.23331489867342306,
+              0.7078615719148122
+            ],
+            "recall": 0.6631689401888772,
+            "specificity": 0.8713355048859935,
+            "usable_for_a_per_cell_correction": false
+          },
+          "random_suffix": {
+            "agreement": 0.986125746399719,
+            "false_omission_rate": 0.0,
+            "n_sampled": 20,
+            "n_sampled_classifier_positives": 3,
+            "precision": 0.6666666666666666,
+            "precision_interval95_approximate": [
+              0.13322223379388565,
+              1.0
+            ],
+            "recall": 1.0,
+            "specificity": 0.9857297687861272,
+            "usable_for_a_per_cell_correction": false
+          }
+        },
+        "per_condition_note": "Condition strata are not part of the frozen audit design. These reuse a sample drawn for the classifier-label design, so per-condition positive counts are a slice of the audited positives and their intervals stay wide. They are diagnostics, not a second audit.",
         "precision": 0.55,
         "recall": 0.8903688524590164,
         "sample_agreement": {
@@ -334,6 +452,22 @@
         "random_suffix": 0.14
       },
       "decision": {
+        "behavior_specific_controls": {
+          "bare": true,
+          "mismatched_gcg": false,
+          "random_suffix": true
+        },
+        "behavior_specific_family": {
+          "confirmatory": false,
+          "rule": "beat every control, including a suffix optimized for another behavior",
+          "tests": 9
+        },
+        "behavior_specific_holm_adjusted_p": {
+          "bare": 0.000446319580078125,
+          "mismatched_gcg": 1.0,
+          "random_suffix": 0.003631591796875
+        },
+        "behavior_specific_transfer": "not_supported",
         "classifier_validation": "pending",
         "holm_adjusted_p": {
           "bare": 0.00029754638671875,
@@ -403,6 +537,40 @@
           "selected_mean_delta": 0.6399999999999999,
           "utility": 0.2933333333333332
         },
+        "secondary_estimands": {
+          "bare": {
+            "estimand": "GCG minus bare uplift, same source-only selection",
+            "p_one_sided": 0.047401512918754295,
+            "role": "secondary",
+            "utility": 0.2933333333333332
+          },
+          "mismatched_gcg": {
+            "estimand": "GCG minus mismatched_gcg uplift, same source-only selection",
+            "p_one_sided": 0.08268423785665165,
+            "role": "secondary",
+            "utility": 0.2066666666666667
+          },
+          "random_suffix": {
+            "estimand": "GCG minus random_suffix uplift, same source-only selection",
+            "p_one_sided": 0.01972548524272662,
+            "role": "secondary",
+            "utility": 0.35333333333333317
+          }
+        },
+        "secondary_rank_correlations": {
+          "bare": {
+            "p": 0.0033993201359728054,
+            "rho": 0.5394873415245524
+          },
+          "mismatched_gcg": {
+            "p": 0.11617676464707058,
+            "rho": 0.2947732124629839
+          },
+          "random_suffix": {
+            "p": 0.0065986802639472104,
+            "rho": 0.5081203847607295
+          }
+        },
         "source_uplift": {
           "p_one_sided": 0.322302218853943,
           "random_selection_expectation": 0.3466666666666667,
@@ -432,6 +600,22 @@
         "random_suffix": 0.02
       },
       "decision": {
+        "behavior_specific_controls": {
+          "bare": false,
+          "mismatched_gcg": false,
+          "random_suffix": true
+        },
+        "behavior_specific_family": {
+          "confirmatory": false,
+          "rule": "beat every control, including a suffix optimized for another behavior",
+          "tests": 9
+        },
+        "behavior_specific_holm_adjusted_p": {
+          "bare": 1.0,
+          "mismatched_gcg": 1.0,
+          "random_suffix": 0.0068359375
+        },
+        "behavior_specific_transfer": "not_supported",
         "classifier_validation": "pending",
         "holm_adjusted_p": {
           "bare": 1.0,
@@ -501,6 +685,40 @@
           "selected_mean_delta": -0.039999999999999994,
           "utility": -0.039999999999999994
         },
+        "secondary_estimands": {
+          "bare": {
+            "estimand": "GCG minus bare uplift, same source-only selection",
+            "p_one_sided": 0.7172750621026484,
+            "role": "secondary",
+            "utility": -0.039999999999999994
+          },
+          "mismatched_gcg": {
+            "estimand": "GCG minus mismatched_gcg uplift, same source-only selection",
+            "p_one_sided": 0.3753315649867374,
+            "role": "secondary",
+            "utility": 0.06666666666666667
+          },
+          "random_suffix": {
+            "estimand": "GCG minus random_suffix uplift, same source-only selection",
+            "p_one_sided": 0.43042398214812005,
+            "role": "secondary",
+            "utility": 0.026666666666666644
+          }
+        },
+        "secondary_rank_correlations": {
+          "bare": {
+            "p": 0.09778044391121776,
+            "rho": 0.30872793894861345
+          },
+          "mismatched_gcg": {
+            "p": 0.21855628874225155,
+            "rho": 0.2260893333402598
+          },
+          "random_suffix": {
+            "p": 0.013197360527894421,
+            "rho": 0.4353832903021045
+          }
+        },
         "source_uplift": {
           "p_one_sided": 0.7172750621026484,
           "random_selection_expectation": -1.8503717077085942e-18,
@@ -530,6 +748,22 @@
         "random_suffix": 0.03333333333333333
       },
       "decision": {
+        "behavior_specific_controls": {
+          "bare": false,
+          "mismatched_gcg": false,
+          "random_suffix": false
+        },
+        "behavior_specific_family": {
+          "confirmatory": false,
+          "rule": "beat every control, including a suffix optimized for another behavior",
+          "tests": 9
+        },
+        "behavior_specific_holm_adjusted_p": {
+          "bare": 1.0,
+          "mismatched_gcg": 1.0,
+          "random_suffix": 1.0
+        },
+        "behavior_specific_transfer": "not_supported",
         "classifier_validation": "pending",
         "holm_adjusted_p": {
           "bare": 0.9375,
@@ -599,6 +833,40 @@
           "selected_mean_delta": 0.0,
           "utility": -0.03333333333333333
         },
+        "secondary_estimands": {
+          "bare": {
+            "estimand": "GCG minus bare uplift, same source-only selection",
+            "p_one_sided": 0.8828259862742621,
+            "role": "secondary",
+            "utility": -0.03333333333333333
+          },
+          "mismatched_gcg": {
+            "estimand": "GCG minus mismatched_gcg uplift, same source-only selection",
+            "p_one_sided": 0.8874854392095771,
+            "role": "secondary",
+            "utility": -0.04666666666666667
+          },
+          "random_suffix": {
+            "estimand": "GCG minus random_suffix uplift, same source-only selection",
+            "p_one_sided": 0.9604578052853915,
+            "role": "secondary",
+            "utility": -0.05333333333333334
+          }
+        },
+        "secondary_rank_correlations": {
+          "bare": {
+            "p": 0.8882223555288942,
+            "rho": 0.02725382878598533
+          },
+          "mismatched_gcg": {
+            "p": 0.3087382523495301,
+            "rho": -0.19645571996077807
+          },
+          "random_suffix": {
+            "p": 0.23815236952609478,
+            "rho": -0.2242281261104444
+          }
+        },
         "source_uplift": {
           "p_one_sided": 0.3148639355535907,
           "random_selection_expectation": 0.03333333333333333,
@@ -628,6 +896,22 @@
         "random_suffix": 0.04
       },
       "decision": {
+        "behavior_specific_controls": {
+          "bare": false,
+          "mismatched_gcg": false,
+          "random_suffix": false
+        },
+        "behavior_specific_family": {
+          "confirmatory": false,
+          "rule": "beat every control, including a suffix optimized for another behavior",
+          "tests": 9
+        },
+        "behavior_specific_holm_adjusted_p": {
+          "bare": null,
+          "mismatched_gcg": null,
+          "random_suffix": null
+        },
+        "behavior_specific_transfer": "not_supported",
         "classifier_validation": "pending",
         "holm_adjusted_p": {
           "bare": null,
@@ -697,6 +981,40 @@
           "selected_mean_delta": 0.8800000000000001,
           "utility": 0.2400000000000002
         },
+        "secondary_estimands": {
+          "bare": {
+            "estimand": "GCG minus bare uplift, same source-only selection",
+            "p_one_sided": 0.06734453286177425,
+            "role": "secondary",
+            "utility": 0.2400000000000002
+          },
+          "mismatched_gcg": {
+            "estimand": "GCG minus mismatched_gcg uplift, same source-only selection",
+            "p_one_sided": 0.5894769343045205,
+            "role": "secondary",
+            "utility": -0.020000000000000018
+          },
+          "random_suffix": {
+            "estimand": "GCG minus random_suffix uplift, same source-only selection",
+            "p_one_sided": 0.0658709106984969,
+            "role": "secondary",
+            "utility": 0.2533333333333334
+          }
+        },
+        "secondary_rank_correlations": {
+          "bare": {
+            "p": 0.11517696460707859,
+            "rho": 0.2940862044876545
+          },
+          "mismatched_gcg": {
+            "p": 0.9150169966006798,
+            "rho": -0.02173088781876724
+          },
+          "random_suffix": {
+            "p": 0.060387922415516895,
+            "rho": 0.35017298860407264
+          }
+        },
         "source_uplift": {
           "p_one_sided": 0.18394313221899428,
           "random_selection_expectation": 0.6399999999999999,
@@ -718,6 +1036,11 @@
         "test": "two-sided behavior permutation; exploratory ranking endpoint"
       }
     }
+  },
+  "secondary_multiplicity": {
+    "family": "primary-family targets times every control",
+    "meaning": "secondary; the frozen primary decision is unchanged by ADR-0027",
+    "tests": 9
   },
   "source_search": {
     "loss_reproduction_gap": {

@@ -25,7 +25,14 @@ def prioritization(entry: dict) -> dict:
     if not block:
         return {}
     keep = ("role", "utility", "selected_mean_delta", "random_selection_expectation", "p_one_sided")
-    return {name: {k: block[name][k] for k in keep} for name in ("source_uplift", "loss_proxy")}
+    out = {name: {k: block[name][k] for k in keep} for name in ("source_uplift", "loss_proxy")}
+    # ADR-0027: the same source-only selection scored on control-relative contrasts.
+    if block.get("secondary_estimands"):
+        out["secondary_estimands"] = {c: {k: v[k] for k in ("utility", "p_one_sided", "role", "estimand")}
+                                       for c, v in block["secondary_estimands"].items()}
+        out["secondary_rank_correlations"] = {c: {"rho": v["rho"], "p": v["p"]}
+                                              for c, v in block["secondary_rank_correlations"].items()}
+    return out
 
 
 def model_audit(directory: Path, generations: list, heldout: set) -> dict:
@@ -48,6 +55,8 @@ def model_audit(directory: Path, generations: list, heldout: set) -> dict:
             "classifier_positive_prevalence": audit["design_weighted"]["classifier_positive_prevalence"],
             "labeler_positive_prevalence": audit["design_weighted"]["labeler_positive_prevalence"],
             "sample_agreement": audit["sample_agreement"],
+            "per_condition_estimates": audit.get("per_condition_estimates"),
+            "per_condition_note": audit.get("per_condition_note"),
         })
     out = {"labelers": labelers, "status": "post hoc model audit; does not complete the frozen human criterion"}
     if len(audits) >= 2:
@@ -86,6 +95,7 @@ def build(study_id: str) -> dict:
             c["gcg_generations"] += 1
             c["gcg_suffix_ids_match_source"] += row["suffix_ids_match_source"] is True
     out = {k: summary[k] for k in KEEP_TOP if k in summary}
+    out["secondary_multiplicity"] = summary.get("secondary_multiplicity")
     out["tool_versions"] = {k: v for k, v in plan.get("versions", {}).items()
                             if k in ("nanogcg", "torch", "transformers", "numpy", "scipy")}
     losses = sorted(a["evaluated_source_loss"] for a in attacks)

@@ -46,7 +46,13 @@ python scripts/hf_evidence.py delete $LASA_EVIDENCE_REPO
 
 The job environment is `requirements-study.txt` plus `nanogcg==0.3.0` installed without dependencies (ADR-0023). Local `audit-score` and `analyze` need numpy and scipy at the frozen versions; the summary lists other package differences.
 
-## Commands (local protocols)
+## Secondary specificity checks (ADR-0027)
+
+The frozen confirmatory rule asks only that the source suffix beat the bare request and a random suffix. That is a weak ask: a suffix effect that is not specific to the request can meet it. Alongside the frozen rule, `analyze` scores the same source-only top-k selection on control-relative contrasts (`source_only_prioritization.secondary_estimands`, one entry per control) and reports its rank correlations against those contrasts (`secondary_rank_correlations`). A separate label, `behavior_specific_transfer`, asks for superiority over all three controls under its own Holm family of primary-family targets times controls. All of it is secondary. It never changes a frozen status, and the utility p-values are unadjusted, so a confirmatory claim on a control-relative estimand needs a plan initialized with the new code.
+
+## Audit strata (ADR-0028)
+
+`human_audit_design: stratified_label_x_condition` draws proportional quotas over (classifier label, condition) strata, at least one per nonempty stratum, with per-stratum inclusion probabilities. `audit-score` then reports `per_condition_estimates`: precision inside each condition, how many classifier positives that condition contributed, and an approximate 95% interval. Per-condition precision is what decides whether a contrast survives a weak judge. Cells with fewer than 30 sampled positives report `usable_for_a_per_cell_correction: false`. These fields are diagnostics. No audit threshold or frozen criterion moves.
 
 The engineering pilot predates ADR-0016 and cannot support efficacy claims. The prospective run:
 

@@ -51,6 +51,35 @@ def build_metadata_md(title: str, author: str, date: str, abstract: str, body: s
     ])
 
 
+# Latin Modern produces one ligature glyph in this build, U+FB00 for "ff". The
+# fi, fl, ffi and ffl combinations are not ligatured here, so nothing else is
+# mapped: an unverified mapping would corrupt the text it is meant to repair.
+PDF_LIGATURES = {"\uFB00": "ff"}
+
+
+def expand_pdf_ligatures(text: str) -> str:
+    """Undo the ff ligature glyph that Latin Modern leaves in the PDF text layer.
+
+    Rendering is correct either way; extraction is not. Copy, search and screen
+    readers see the codepoint instead of the two letters, so the searchable text
+    companion is normalized while the PDF itself is left untouched.
+    """
+    return "".join(PDF_LIGATURES.get(c, c) for c in text)
+
+
+def ligature_count(text: str) -> int:
+    return sum(c in PDF_LIGATURES for c in text)
+
+
+def write_text_companion(pdf: Path, out: Path) -> int:
+    """Write a searchable text copy of the reading PDF; return the ligature count."""
+    if not shutil.which("pdftotext"):
+        return 0
+    text = subprocess.check_output(["pdftotext", str(pdf), "-"], text=True)
+    out.write_text(expand_pdf_ligatures(text))
+    return ligature_count(text)
+
+
 def run_pandoc(meta_md: Path, tex_out: Path, pdf_out: Path | None) -> None:
     common = [
         "pandoc", str(meta_md), "--standalone", "--citeproc", "--fail-if-warnings", "--pdf-engine=tectonic",
@@ -92,6 +121,10 @@ def main() -> int:
     pdf = OUT / "paper.pdf" if args.pdf else None
     run_pandoc(metadata, OUT / "paper.tex", pdf)
     metadata.unlink()
+    if pdf is not None:
+        replaced = write_text_companion(pdf, OUT / "paper.txt")
+        if replaced:
+            print(f"text companion: expanded {replaced} ligature glyphs into paper.txt")
     if args.reading_copy:
         shutil.copy(pdf, args.reading_copy)
     (OUT / "README.txt").write_text(
@@ -99,6 +132,9 @@ def main() -> int:
         "Citations are rendered inline by Pandoc citeproc; no BibTeX pass is needed.\n"
         "references.bib and ieee.csl are included for provenance and rebuilding.\n"
         "Compile paper.tex with XeLaTeX/Tectonic in this directory; pdflatex is not validated.\n"
+        "paper.txt is a searchable text copy of the PDF. Latin Modern puts an ff ligature\n"
+        " glyph in the PDF text layer, so the companion expands it for copy, search, and\n"
+        " screen readers; the figures themselves are not in the text copy.\n"
         "Check the current submission rules of the selected venue before upload.\n"
         "Complete the independent evaluation and human audit before publication.\n"
     )
