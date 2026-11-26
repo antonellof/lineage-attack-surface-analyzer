@@ -42,8 +42,16 @@ def fetch(cfg, entries) -> None:
     for entry in entries:
         local = resolve_local_path(entry, Path(cfg.get("models_dir", "models")))
         print(f"fetching {entry['model_id']} -> {local}", flush=True)
-        snapshot_download(repo_id=entry["model_id"], local_dir=str(local), revision=entry.get("revision"),
-                          allow_patterns=["*.safetensors", "*.json", "tokenizer.model", "*.txt", "*.jinja"])
+        for attempt in range(6):  # the Hub returns transient 5xx errors; a paid job should not die on one
+            try:
+                snapshot_download(repo_id=entry["model_id"], local_dir=str(local), revision=entry.get("revision"),
+                                  allow_patterns=["*.safetensors", "*.json", "tokenizer.model", "*.txt", "*.jinja"])
+                break
+            except Exception as exc:
+                if attempt == 5:
+                    raise
+                print(f"download failed ({exc.__class__.__name__}); retrying in {30 * (attempt + 1)} s", flush=True)
+                time.sleep(30 * (attempt + 1))
 
 
 def push(api, repo, out: Path, study_id: str) -> None:
