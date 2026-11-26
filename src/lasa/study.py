@@ -224,6 +224,52 @@ def locked_stage(fn):
     return run
 
 
+def inherit_search(cfg, plan, out) -> Path:
+    """Copy the parent's frozen source attacks, checked against the digests this plan froze."""
+    require_public_commitment(cfg, plan)
+    _, parent_out = _parent(cfg)
+    attacks = json.loads((parent_out / "source_attacks.json").read_text())
+    if digest(attacks) != plan["attacks_from"]["attacks_digest"]:
+        raise ValueError("parent attacks changed after this plan froze")
+    dest = out / "source_attacks.json"
+    payload = {**attacks, "plan_digest": digest(plan), "inherited_from": plan["attacks_from"]}
+    if dest.exists() and json.loads(dest.read_text()) != payload:
+        raise ValueError("an inherited attack artifact already exists with other content")
+    private_json(dest, payload)
+    return dest
+
+
+@locked_stage
+def similarity(config_path) -> Path:
+    """Benign-probe linear CKA between the source and each target, without position 0.
+
+    Appendix A of the paper shows that pooling over every token lets the first
+    position dominate; this measurement excludes it. The summary is the mean over
+    middle layers (every hidden-state output except the first two and last two).
+    Benign probes only; no attack or outcome enters it.
+    """
+    from lasa.cka_diagnostic import activations
+    from lasa.pipeline.similarity import load_probes
+    from lasa.similarity_metrics import linear_cka
+    cfg, plan, ids, out = frozen(config_path)
+    spec = cfg["similarity"]
+    probes = load_probes(spec["probes"])
+    _, source, _, _ = activations(Path(plan["models"][ids[0]]["path"]), probes)
+    rows = {}
+    for model_id in ids[1:]:
+        _, target, _, _ = activations(Path(plan["models"][model_id]["path"]), probes)
+        if len(target) != len(source):
+            raise ValueError(f"{model_id} has a different layer count; CKA by layer is undefined")
+        per_layer = [float(linear_cka(x, y)) for x, y in zip(source, target)]
+        middle = per_layer[2:-2]
+        rows[model_id] = {"per_layer": per_layer, "middle_mean": float(np.mean(middle))}
+    dest = out / "similarity.json"
+    private_json(dest, {"plan_digest": digest(plan), "probes_digest": digest(probes), "n_probes": len(probes),
+                        "pooling": "mean over tokens without position 0", "summary": "middle-layer mean",
+                        "targets": rows})
+    return dest
+
+
 @locked_stage
 def initialize(config_path) -> Path:
     cfg, auth, ids, out = context(config_path)
@@ -281,6 +327,8 @@ def initialize(config_path) -> Path:
     }
     if "mismatched_gcg" in conditions:
         plan["mismatched_suffix_source"] = mismatch_map(behaviors, cfg["seed"])
+    if cfg.get("attacks_from"):
+        plan["attacks_from"] = inherited_attacks(cfg, behaviors, registry)
     private_json(plan_file, plan)
     commitment.parent.mkdir(parents=True, exist_ok=True)
     commitment.write_text(json.dumps(public_commitment(plan), indent=2, sort_keys=True) + "\n")
@@ -405,10 +453,42 @@ def random_control(tokenizer, suffix: str, seed: int) -> dict:
     raise ValueError("could not form a source-token-length-matched null; do not silently change controls")
 
 
+def _parent(cfg):
+    parent_cfg = yaml.safe_load(Path(cfg["attacks_from"]).read_text())
+    return parent_cfg, Path(parent_cfg["output_dir"]).resolve()
+
+
+def inherited_attacks(cfg, behaviors, registry) -> dict:
+    """Identify the finished source search an extension study reuses (ADR-0034).
+
+    The parent must share the source checkpoint, seed, benchmark, search settings and
+    behaviors, so reusing its suffixes is the same measurement as searching again.
+    Only the targets are new, and none of their outcomes exist when this plan freezes.
+    """
+    parent_cfg, parent_out = _parent(cfg)
+    same = {key: parent_cfg.get(key) == cfg.get(key) for key in ("seed", "benchmark", "gcg", "controls")}
+    same["source"] = (parent_cfg["base"]["model_id"], parent_cfg["base"].get("revision")) == \
+        (cfg["base"]["model_id"], cfg["base"].get("revision"))
+    if not all(same.values()):
+        raise ValueError(f"attacks_from parent differs: {[k for k, v in same.items() if not v]}")
+    parent_plan = json.loads((parent_out / "plan.json").read_text())
+    if parent_plan["behaviors"] != behaviors:
+        raise ValueError("attacks_from parent froze different behaviors")
+    if parent_plan["models"][cfg["base"]["model_id"]]["digest"] != registry[cfg["base"]["model_id"]]["digest"]:
+        raise ValueError("attacks_from parent searched a different source checkpoint")
+    attacks = json.loads((parent_out / "source_attacks.json").read_text())
+    if attacks["plan_digest"] != digest(parent_plan) or len(attacks["attacks"]) != len(behaviors):
+        raise ValueError("attacks_from parent search is incomplete or belongs to another plan")
+    return {"config": cfg["attacks_from"], "study_id": parent_cfg["study_id"],
+            "plan_digest": digest(parent_plan), "attacks_digest": digest(attacks)}
+
+
 @locked_stage
 def search(config_path) -> Path:
-    import nanogcg
     cfg, plan, ids, out = frozen(config_path)
+    if plan.get("attacks_from"):
+        return inherit_search(cfg, plan, out)
+    import nanogcg
     if importlib.metadata.version("nanogcg") != "0.3.0":
         raise ValueError("this protocol requires nanogcg==0.3.0")
     require_public_commitment(cfg, plan)

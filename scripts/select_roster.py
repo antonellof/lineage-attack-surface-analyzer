@@ -5,9 +5,10 @@ Hugging Face Hub, ordered by downloads at selection time. A candidate is kept wh
   (a) its weights are full safetensors files,
   (b) it ships a chat template,
   (c) its model card names the source as base model,
-  (d) its layer count, hidden size and vocabulary size equal the source's,
+  (d) its model type, layer count, hidden size and vocabulary size equal the source's,
   (e) its id does not mark a format conversion, a quantization, a refusal-removal
-      variant or a poisoning experiment.
+      variant or a poisoning experiment, and it is not a reasoning model (`--no-reasoning`)
+      or a checkpoint another study already measured (`--exclude`).
 The first `--n` kept candidates form the roster. Roles come from a declared task list:
 a model whose card describes one fixed-output task is a task control, the rest are primary.
 
@@ -25,7 +26,8 @@ from pathlib import Path
 EXCLUDE = re.compile(r"mlx|litert|gguf|onnx|npu|rkllm|openvino|int4|int8|awq|gptq|quant|bnb|4bit|8bit|exl2|mnn|"
                      r"qnn|coreml|tflite|llamafile|abliterat|uncensor|heretic|poison|secretsauce|random|tiny-|test|"
                      r"mirror|unsloth/|lmstudio", re.I)
-SHAPE = ("num_hidden_layers", "hidden_size", "vocab_size")
+REASONING = re.compile(r"r1|think|reason|o1-|cot\b|grpo|deepseek", re.I)
+SHAPE = ("model_type", "num_hidden_layers", "hidden_size", "vocab_size")
 
 
 def text_config(repo, revision=None):
@@ -42,6 +44,8 @@ def main() -> int:
     p.add_argument("--scan", type=int, default=200)
     p.add_argument("--task-control", nargs="*", default=[])
     p.add_argument("--out", required=True)
+    p.add_argument("--exclude", nargs="*", default=[], help="model ids already measured elsewhere")
+    p.add_argument("--no-reasoning", action="store_true", help="drop ids that mark reasoning or R1 distillation")
     args = p.parse_args()
     api = HfApi()
     source_info = api.model_info(args.source)
@@ -58,6 +62,10 @@ def main() -> int:
             reason = f"pipeline {m.pipeline_tag}"
         elif EXCLUDE.search(m.id):
             reason = "conversion, quantization, refusal-removal or poisoning id"
+        elif m.id in args.exclude:
+            reason = "measured in another study"
+        elif args.no_reasoning and REASONING.search(m.id):
+            reason = "reasoning model; the protocol excludes them"
         if reason is None and len(kept) < args.n:
             info = api.model_info(m.id, expand=["siblings", "cardData", "sha"])
             files = {s.rfilename for s in info.siblings}
@@ -89,7 +97,8 @@ def main() -> int:
         log.append(entry)
     payload = {"source": args.source, "source_revision": source_info.sha, "source_shape": shape,
                "selected_on": date.today().isoformat(), "rule": __doc__.strip().splitlines()[2:12],
-               "declared_task_controls": args.task_control, "roster": kept, "candidates": log}
+               "declared_task_controls": args.task_control, "excluded_ids": args.exclude,
+               "reasoning_excluded": args.no_reasoning, "roster": kept, "candidates": log}
     Path(args.out).parent.mkdir(parents=True, exist_ok=True)
     Path(args.out).write_text(json.dumps(payload, indent=2) + "\n")
     for e in kept:

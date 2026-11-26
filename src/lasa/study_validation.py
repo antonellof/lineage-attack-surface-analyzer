@@ -69,6 +69,11 @@ SCHEMA = {
         "torch_dtype": {"enum": ["float16", "bfloat16", "float32"]},
         "max_new_tokens": {"type": "integer", "minimum": 1},
         "audit_n": {"type": "integer", "minimum": 1},
+        "attacks_from": {"type": "string", "minLength": 1},
+        "similarity": {"type": "object", "additionalProperties": False, "required": ["probes"], "properties": {
+            "probes": {"type": "string", "minLength": 1},
+            "contrasts": {"type": "array", "minItems": 1, "uniqueItems": True,
+                          "items": {"enum": ["bare", "random_suffix", "mismatched_gcg"]}}}},
         "human_audit_n": {"type": "integer", "minimum": 1},
         "top_k": {"type": "integer", "minimum": 1},
     },

@@ -129,6 +129,9 @@ def main() -> int:
     if api.repo_info(args.evidence_repo, repo_type="dataset").private is not True:
         raise SystemExit("stop: the evidence dataset must be private")
     pull(args.evidence_repo, out, study_id)
+    if cfg.get("attacks_from"):  # an extension study reads its parent's frozen search (ADR-0034)
+        parent = yaml.safe_load(Path(cfg["attacks_from"]).read_text())
+        pull(args.evidence_repo, Path(parent["output_dir"]), parent["study_id"])
 
     if args.stage == "init":
         fetch(cfg, [cfg["base"], *cfg["variants"], cfg["independent_judge"]])  # the plan hashes all of them
@@ -154,6 +157,8 @@ def main() -> int:
         for stage in ("search", "generate", "judge"):
             fetch(cfg, needs[stage])  # a stage waits only for the checkpoints it loads
             lasa("study", stage, "--config", args.config)
+            if stage == "generate" and cfg.get("similarity"):
+                lasa("study", "similarity", "--config", args.config)
         if not (out / "audit_items.json").exists():
             lasa("study", "audit", "--config", args.config)
         lasa("study", "analyze", "--config", args.config)

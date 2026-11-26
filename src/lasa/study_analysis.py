@@ -134,6 +134,36 @@ def ranking_statistic(source, target, n_perm=5000, seed=0):
             "n_behaviors": len(x), "test": "two-sided behavior permutation; exploratory ranking endpoint"}
 
 
+def similarity_endpoint(out, plan, ids, roles, headroom, heldout, uplift, alpha, n_perm, seed):
+    """Frozen test of the lineage hypothesis across targets (ADR-0034).
+
+    One observation per eligible target: its benign-probe similarity to the source
+    and its mean held-out uplift against each configured control. Eligible means a
+    primary target that the headroom rule kept. Two-sided permutation test of the
+    Spearman correlation, Holm-corrected across the configured controls.
+    """
+    path = out / "similarity.json"
+    if not path.exists():
+        raise ValueError("this plan freezes a similarity test; run the similarity stage before analysis")
+    measured = json.loads(path.read_text())
+    if measured["plan_digest"] != digest(plan):
+        raise ValueError("similarity measurements belong to another plan")
+    eligible = [m for m in ids[1:] if roles[m] == "primary" and not headroom[m]["limited"]]
+    sim = [measured["targets"][m]["middle_mean"] for m in eligible]
+    contrasts = plan["config"]["similarity"].get("contrasts", ["bare"])
+    tests = {}
+    for c in contrasts:
+        effect = [float(uplift(heldout[m], None if c == "bare" else c).mean()) for m in eligible]
+        tests[c] = {**ranking_statistic(sim, effect, n_perm, seed), "uplift": dict(zip(eligible, effect))}
+    adjusted = holm({c: t["p"] for c, t in tests.items() if t["p"] is not None})
+    for c, t in tests.items():
+        t["holm_p"] = adjusted.get(c)
+        t["decision"] = ("similarity_predicts_uplift" if t["holm_p"] is not None and t["holm_p"] < alpha
+                         and t["rho"] > 0 else "not_supported")
+    return {"n_targets": len(eligible), "similarity": dict(zip(eligible, sim)), "tests": tests,
+            "rule": "Spearman across eligible targets, two-sided permutation, Holm across controls"}
+
+
 def top_k(score, k, tie_order):
     """Descending score; ties broken by a seeded, source-only order fixed in advance."""
     score = np.asarray(score, dtype=float)
@@ -438,6 +468,11 @@ def analyze(config_path, *, allow_analysis_revision=False):
             "interpretation": "classifier-based; conditional on the independent audit supporting the classifier",
         }
 
+    similarity_test = None
+    if plan["config"].get("similarity"):
+        similarity_test = similarity_endpoint(out, plan, ids, roles, headroom, arrays["heldout"], uplift,
+                                              alpha, n_perm, seed)
+
     audits, inter_annotator, audit_complete = _scored_audits(
         out, _audit_settings(cfg)["labelers"], digest(evidence))
     validation = audit_validation(audits, inter_annotator, audit_complete, decision.get("audit"))
@@ -475,6 +510,7 @@ def analyze(config_path, *, allow_analysis_revision=False):
         "audit": audits[0] if audits else None,
         "audits": audits, "inter_annotator_agreement": inter_annotator,
         "classifier_validation": validation,
+        "similarity_test": similarity_test,
         "max_source_loss_reproduction_gap": max(gaps) if gaps else None,
         "protocol_status": cfg["protocol_status"], "results": results,
     }

@@ -63,7 +63,7 @@ def main(argv: list[str] | None = None) -> int:
     knn.add_argument("--config", required=True)
 
     study = sub.add_parser("study", help="frozen prompt-transfer study with exact evidence and an independent judge")
-    study.add_argument("stage", choices=["initialize", "search", "generate", "judge", "audit", "audit-score", "analyze", "status"])
+    study.add_argument("stage", choices=["initialize", "search", "generate", "judge", "audit", "audit-score", "analyze", "status", "similarity"])
     study.add_argument("--config", required=True)
     study.add_argument("--labeler", help="identified person or model that supplied audit labels")
     study.add_argument("--labeler-kind", choices=["human", "model"])

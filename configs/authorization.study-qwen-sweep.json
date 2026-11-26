@@ -1,0 +1,24 @@
+{
+  "id": "auth-study-qwen-sweep-public-research-2026",
+  "operator": "Antonello Fratepietro <antonello.f@gmail.com>",
+  "scope": [
+    "Qwen/Qwen2.5-1.5B-Instruct",
+    "SZLHOLDINGS/SZL-Khipu-1.5B",
+    "sivamani-31/sika-gpt",
+    "abr-6024/indian-address-parser-1.5B",
+    "asheeee24/tooltuned-qwen2.5-1.5b",
+    "SakanaAI/TinySwallow-1.5B",
+    "shibing624/chinese-text-correction-1.5b",
+    "danielkty22/TARS-SFT-1.5B",
+    "mjpsm/project-creation-qwen2.5-1.5b-sft-v1",
+    "Z-Nadjib/ClauseLM-Qwen2.5-1.5B",
+    "ak2311581/hana-pskit-1.5b",
+    "BIBIMBAM/Begonvil-Ajan-1.5B",
+    "kisooofficial/qwen2.5-1.5b-glaive-tool",
+    "jahyungu/Qwen2.5-1.5B-Instruct_gsm8k",
+    "Mefubi/Nergis-1-5B"
+  ],
+  "basis": "public-research",
+  "authorized_on": "2026-11-26",
+  "notes": "Public open-weight derivatives of Qwen2.5-1.5B-Instruct for the derivative sweep (ADR-0034). Requested by the operator on 2026-11-26. Roster chosen by scripts/select_roster.py before any outcome."
+}

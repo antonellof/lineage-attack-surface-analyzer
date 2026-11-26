@@ -1,0 +1,1378 @@
+{
+  "source": "Qwen/Qwen2.5-1.5B-Instruct",
+  "source_revision": "989aa7980e4cf806f80c7fef2b1adb7bc71aa306",
+  "source_shape": {
+    "model_type": "qwen2",
+    "num_hidden_layers": 28,
+    "hidden_size": 1536,
+    "vocab_size": 151936
+  },
+  "selected_on": "2026-11-26",
+  "rule": [
+    "Run before any outcome exists. Candidates are the source's children on the",
+    "Hugging Face Hub, ordered by downloads at selection time. A candidate is kept when:",
+    "  (a) its weights are full safetensors files,",
+    "  (b) it ships a chat template,",
+    "  (c) its model card names the source as base model,",
+    "  (d) its model type, layer count, hidden size and vocabulary size equal the source's,",
+    "  (e) its id does not mark a format conversion, a quantization, a refusal-removal",
+    "      variant or a poisoning experiment, and it is not a reasoning model (`--no-reasoning`)",
+    "      or a checkpoint another study already measured (`--exclude`).",
+    "The first `--n` kept candidates form the roster. Roles come from a declared task list:"
+  ],
+  "declared_task_controls": [],
+  "excluded_ids": [
+    "SakanaAI/TinySwallow-1.5B-Instruct",
+    "katanemo/Arch-Router-1.5B",
+    "Qwen/Qwen2.5-Coder-1.5B-Instruct",
+    "Qwen/Qwen2.5-Math-1.5B-Instruct"
+  ],
+  "reasoning_excluded": true,
+  "roster": [
+    {
+      "model_id": "SZLHOLDINGS/SZL-Khipu-1.5B",
+      "downloads": 1180,
+      "revision": "81991991aca02f861e95971f545678f74b2859c5",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "sivamani-31/sika-gpt",
+      "downloads": 1049,
+      "revision": "fe9519a20042f50e11a507155107f2e4dbd56c09",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "abr-6024/indian-address-parser-1.5B",
+      "downloads": 895,
+      "revision": "483951f3d7855ae47e0659f34ba1d2145055dcc7",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "asheeee24/tooltuned-qwen2.5-1.5b",
+      "downloads": 766,
+      "revision": "393510c12e73076ead63e0728b93d056edcaa168",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "SakanaAI/TinySwallow-1.5B",
+      "downloads": 710,
+      "revision": "535d1322615c9f8171c3d60b10ef6955cc896fe9",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "shibing624/chinese-text-correction-1.5b",
+      "downloads": 694,
+      "revision": "2ed18cbe2a79d19d7544d508ce839a7fac7ab470",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "danielkty22/TARS-SFT-1.5B",
+      "downloads": 610,
+      "revision": "2f9fcaa61fba3f1d45ba85a65104573ae71c6b7a",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "mjpsm/project-creation-qwen2.5-1.5b-sft-v1",
+      "downloads": 609,
+      "revision": "5fcf4e45982ba5827b18b68f64fe3ae3be3b0465",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "Z-Nadjib/ClauseLM-Qwen2.5-1.5B",
+      "downloads": 601,
+      "revision": "dd332cf8e30ec4131eb07ef7b608027fb6085e0f",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "ak2311581/hana-pskit-1.5b",
+      "downloads": 600,
+      "revision": "b200b024eade54e2f0354009b5bda8a6ddcaacff",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "BIBIMBAM/Begonvil-Ajan-1.5B",
+      "downloads": 490,
+      "revision": "f3958963abb12984760fc1001ead99008711db33",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "kisooofficial/qwen2.5-1.5b-glaive-tool",
+      "downloads": 482,
+      "revision": "489a4e2e637a8565752015da1cbe9a806d42b532",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "jahyungu/Qwen2.5-1.5B-Instruct_gsm8k",
+      "downloads": 451,
+      "revision": "840813823cfd422f3f9ed96df15b31b060f1f0e9",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "Mefubi/Nergis-1-5B",
+      "downloads": 410,
+      "revision": "f9e52663009b1b595ded5707848ce7c2d8015f2e",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    }
+  ],
+  "candidates": [
+    {
+      "model_id": "katanemo/Arch-Router-1.5B",
+      "downloads": 134008,
+      "kept": false,
+      "reason": "measured in another study"
+    },
+    {
+      "model_id": "litert-community/Qwen2.5-1.5B-Instruct",
+      "downloads": 126286,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "unsloth/Qwen2.5-1.5B-Instruct",
+      "downloads": 44086,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "SakanaAI/TinySwallow-1.5B-Instruct",
+      "downloads": 1839,
+      "kept": false,
+      "reason": "measured in another study"
+    },
+    {
+      "model_id": "Efficient-Large-Model/Fast_dLLM_v2_1.5B",
+      "downloads": 1663,
+      "revision": "25093b6f63300adfd57f72145083c8a528fe4f16",
+      "kept": false,
+      "reason": "shape differs from source: {'model_type': 'Fast_dLLM_Qwen', 'num_hidden_layers': 28, 'hidden_size': 1536, 'vocab_size': 151936}"
+    },
+    {
+      "model_id": "ByteDance-Seed/Tar-1.5B",
+      "downloads": 1481,
+      "kept": false,
+      "reason": "pipeline any-to-any"
+    },
+    {
+      "model_id": "SZLHOLDINGS/SZL-Khipu-1.5B",
+      "downloads": 1180,
+      "revision": "81991991aca02f861e95971f545678f74b2859c5",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "PJMixers-Dev/qwen2.5-1.5b-instruct-43-layers-zeroed",
+      "downloads": 1051,
+      "revision": "5a792751352a8d2ec850cf8267b2a4d72b370a7d",
+      "kept": false,
+      "reason": "shape differs from source: {'model_type': 'qwen2', 'num_hidden_layers': 43, 'hidden_size': 1536, 'vocab_size': 151936}"
+    },
+    {
+      "model_id": "sivamani-31/sika-gpt",
+      "downloads": 1049,
+      "revision": "fe9519a20042f50e11a507155107f2e4dbd56c09",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "abr-6024/indian-address-parser-1.5B",
+      "downloads": 895,
+      "revision": "483951f3d7855ae47e0659f34ba1d2145055dcc7",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "asheeee24/tooltuned-qwen2.5-1.5b",
+      "downloads": 766,
+      "revision": "393510c12e73076ead63e0728b93d056edcaa168",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "SakanaAI/TinySwallow-1.5B",
+      "downloads": 710,
+      "revision": "535d1322615c9f8171c3d60b10ef6955cc896fe9",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "shibing624/chinese-text-correction-1.5b",
+      "downloads": 694,
+      "revision": "2ed18cbe2a79d19d7544d508ce839a7fac7ab470",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "HanzoHuang/Qwen2.5-1.5B-Instruct-RKLLM",
+      "downloads": 668,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Vikhrmodels/Vikhr-Qwen-2.5-1.5B-Instruct",
+      "downloads": 654,
+      "revision": "c9f763e5097587066e602ebabed4d93ea29bb60c",
+      "kept": false,
+      "reason": "shape differs from source: {'model_type': 'qwen2', 'num_hidden_layers': 28, 'hidden_size': 1536, 'vocab_size': 151665}"
+    },
+    {
+      "model_id": "eth-nlped/Qwen2.5-1.5B-pedagogical-rewardmodel",
+      "downloads": 646,
+      "kept": false,
+      "reason": "pipeline text-classification"
+    },
+    {
+      "model_id": "danielkty22/TARS-SFT-1.5B",
+      "downloads": 610,
+      "revision": "2f9fcaa61fba3f1d45ba85a65104573ae71c6b7a",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "mjpsm/project-creation-qwen2.5-1.5b-sft-v1",
+      "downloads": 609,
+      "revision": "5fcf4e45982ba5827b18b68f64fe3ae3be3b0465",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "Z-Nadjib/ClauseLM-Qwen2.5-1.5B",
+      "downloads": 601,
+      "revision": "dd332cf8e30ec4131eb07ef7b608027fb6085e0f",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "ak2311581/hana-pskit-1.5b",
+      "downloads": 600,
+      "revision": "b200b024eade54e2f0354009b5bda8a6ddcaacff",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "ElementMerc/qwen2.5-1.5b-uncensored",
+      "downloads": 524,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "BIBIMBAM/Begonvil-Ajan-1.5B",
+      "downloads": 490,
+      "revision": "f3958963abb12984760fc1001ead99008711db33",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "kisooofficial/qwen2.5-1.5b-glaive-tool",
+      "downloads": 482,
+      "revision": "489a4e2e637a8565752015da1cbe9a806d42b532",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "jahyungu/Qwen2.5-1.5B-Instruct_gsm8k",
+      "downloads": 451,
+      "revision": "840813823cfd422f3f9ed96df15b31b060f1f0e9",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "Mefubi/Nergis-1-5B",
+      "downloads": 410,
+      "revision": "f9e52663009b1b595ded5707848ce7c2d8015f2e",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "Sedibaai/SedibaLM",
+      "downloads": 408,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "siva-0104/qwen2.5-1.5b-toolcall-abstain-v6",
+      "downloads": 398,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Bojun-Feng/Qwen2.5-1.5B-Instruct-GGUF-llamafile",
+      "downloads": 397,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Adityapande403/SpecDecode-edge",
+      "downloads": 361,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "tayaee/gamblerinsight-1-qwen2.5-1.5b-smoke",
+      "downloads": 358,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "DeKodez/Qwen2.5-1.5B-Instruct-abliterated",
+      "downloads": 337,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "turkmenx/Bego-1.5B",
+      "downloads": 337,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "aasis001/Qwen2.5-1.5B-Instruct-heretic-ara",
+      "downloads": 330,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "wooferclaw/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 322,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "StephC/Qwen2.5-1.5B-Question-First-Exposure-CQO-seed20261009",
+      "downloads": 312,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "StephC/Qwen2.5-1.5B-Question-First-Exposure-mixed-seed20261009",
+      "downloads": 312,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "StephC/Qwen2.5-1.5B-Question-First-Exposure-QOC-seed20261009",
+      "downloads": 311,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "goncimik/Begonya-1.5B",
+      "downloads": 304,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "tncyypttvk/Prom-1.5B",
+      "downloads": 302,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "3adel25/leftover-recipe-generator-qwen1.5b",
+      "downloads": 293,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "dgAI202/Converse-1.3",
+      "downloads": 260,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Rishabhthe1/agrieasy-ai-v1",
+      "downloads": 245,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "changjiakawhi/Qwen2.5-1.5B-medqa-v1.5-GRPO",
+      "downloads": 238,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "tfwnotops/Qwen2.5-1.5B-Instruct-HCGM",
+      "downloads": 236,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "saurabhb2412/qwen2.5-1.5b-ddx-ranker",
+      "downloads": 236,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "shemking/agrillm-qwen2.5-1.5b-agri",
+      "downloads": 232,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "T1anyu/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 228,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "imnikhil/smart-home-automation-wizard-1.5b",
+      "downloads": 217,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "BAAI/Aquila-VL-2B-llava-qwen",
+      "downloads": 212,
+      "kept": false,
+      "reason": "pipeline visual-question-answering"
+    },
+    {
+      "model_id": "Indee99/qwen2.5-1.5b-financial-news-impact",
+      "downloads": 210,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "AnkitNayak-dev/QJev-1.5B",
+      "downloads": 206,
+      "kept": false,
+      "reason": "pipeline text-classification"
+    },
+    {
+      "model_id": "lmms-lab/Aero-1-Audio",
+      "downloads": 203,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Abuudiii/grpo-Qwen2.5-1.5B-hh-rlhf-helpful",
+      "downloads": 202,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Abuudiii/grpo-Qwen2.5-1.5B-hh-rlhf-combined",
+      "downloads": 202,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_main__math_q25_1.5b_t14b_ovi_direct_lr1e-4__s2",
+      "downloads": 201,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "GatekeeperZA/Qwen2.5-1.5B-Instruct-RKLLM-v1.2.3",
+      "downloads": 199,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Abuudiii/grpo-Qwen2.5-1.5B-hh-rlhf-harmless",
+      "downloads": 197,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "open-thoughts/OpenThinker3-1.5B",
+      "downloads": 196,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_main__math_q25_1.5b_t14b_ovi_direct_lr1e-4__s1",
+      "downloads": 194,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "promotion/Qwen2.5-1.5B-Instruct-HH-NBIVO-QC",
+      "downloads": 191,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yungisimon/Qwen2.5-1.5B-giri-msq-hdbscan-ep2",
+      "downloads": 191,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yungisimon/Qwen2.5-1.5B-giri-msq-hdbscan-ep3",
+      "downloads": 191,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yungisimon/Qwen2.5-1.5B-giri-bcp-hdbscan-ep2",
+      "downloads": 190,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yungisimon/Qwen2.5-1.5B-giri-bcp-hdbscan-ep1",
+      "downloads": 189,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yungisimon/Qwen2.5-1.5B-giri-bcp-hdbscan-ep3",
+      "downloads": 188,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yungisimon/Qwen2.5-1.5B-giri-msq-hdbscan-ep1",
+      "downloads": 185,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n128_indorc_tau0.10_seed300-25grp",
+      "downloads": 183,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_random_seed500-7grp",
+      "downloads": 182,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "AmareshHebbar/ToolSure_Qwen2.5_1.5B_SFT",
+      "downloads": 179,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Wenboz/UOPD-Qwen2.5-1.5B-Instruct-ALFWorld",
+      "downloads": 177,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "andrewsiah/Qwen-2.5-1.5B-Instruct-Datamix",
+      "downloads": 176,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jonathanyin/qwen2.5-1.5b_qwq-32b_traces_20250415_154010",
+      "downloads": 176,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_main__gsm8k_q25_1.5b_t14b_ovi_direct_lr1e-5__s1",
+      "downloads": 176,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "alicogniai/Qwen2.5-1.5B-Open-R1-GRPO",
+      "downloads": 175,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__math_q25_1.5b_t14b_ovi_direct_lr1e-4__s0",
+      "downloads": 175,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ahmadnawaz21/Qwen2.5-1.5B-Financial-Code-Engine",
+      "downloads": 174,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "kings-crown/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 173,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_main__gsm8k_q25_1.5b_t14b_ovi_direct_lr1e-5__s2",
+      "downloads": 170,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "franciscoaleixo/SaibaTudo-Eleicao2026",
+      "downloads": 165,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "StayAlive1/maskingtape-name-1.5b",
+      "downloads": 164,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "citrinegui/Qwen2.5-1.5B-Instruct_countdown2345_grpo_gaussian_0.5_0.5_True_1600",
+      "downloads": 161,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "zhangwt97/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 159,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Shrenik2397/Qwen2.5-1.5B-Instruct",
+      "downloads": 159,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "BytedanceDouyinContent/SAIL-VL-1d6-8B",
+      "downloads": 158,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "promotion/Qwen2.5-1.5B-Instruct-HH-NBIVO",
+      "downloads": 156,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__gsm8k_q25_1.5b_t14b_ovi_direct_lr1e-5__s0",
+      "downloads": 155,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__math_q25_1.5b_t14b_ovi_direct_lr1e-5__s0",
+      "downloads": 151,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__math_q25_1.5b_t14b_ovi_direct_lr3e-5__s0",
+      "downloads": 150,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n128_grouporc_tau0.10_seed400-25grp",
+      "downloads": 150,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "olaverse/mist-qg-1.5b",
+      "downloads": 149,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n128_random_seed400-25grp",
+      "downloads": 149,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__math_q25_1.5b_t14b_ovi_direct_lr3e-4__s0",
+      "downloads": 147,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "AmareshHebbar/ToolSure_Qwen2.5_1.5B_ORPO",
+      "downloads": 145,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_grouporc_tau0.50_seed500-7grp",
+      "downloads": 144,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yavuz-ai/qwen2.5-1.5b-rm-ultrafeedback",
+      "downloads": 143,
+      "kept": false,
+      "reason": "pipeline text-classification"
+    },
+    {
+      "model_id": "jonathanyin/qwen2.5-1.5b_qwq-32b_traces_20250415_164638",
+      "downloads": 142,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_random_seed400-7grp",
+      "downloads": 141,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Rabeya93/Qwen_1.5B_Mymensinghi",
+      "downloads": 140,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Monh38348/my_arabic_dialects_model",
+      "downloads": 137,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "bond005/meno-tiny-0.1",
+      "downloads": 135,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__gsm8k_q25_1.5b_t14b_ovi_direct_lr3e-5__s0",
+      "downloads": 134,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__gsm8k_q25_1.5b_t14b_ovi_direct_lr3e-6__s0",
+      "downloads": 133,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/SizeDirect_lr__gsm8k_q25_1.5b_t14b_ovi_direct_lr1e-4__s0",
+      "downloads": 128,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "meettttttttttt/edgecar-1.5b",
+      "downloads": 126,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "UWNSL/Qwen2.5-1.5B-Instruct_Long_CoT",
+      "downloads": 123,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "badrdesigner/AM",
+      "downloads": 123,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "BytedanceDouyinContent/SAIL-VL-1d5-2B",
+      "downloads": 119,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "UWNSL/Qwen2.5-1.5B-Instruct_Short_CoT",
+      "downloads": 116,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Wenboz/UOPD-Qwen2.5-1.5B-Instruct-WebShop",
+      "downloads": 116,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "BlazingCustoms/plateclerk-verdict-1.5b",
+      "downloads": 115,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ligaments-dev/Qwen-telecom-chatbot-model",
+      "downloads": 113,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "abhi14/test-grpo-delete-me",
+      "downloads": 113,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "gwagon63/innerbloom-reader-1.5b-GGUF",
+      "downloads": 112,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Elstuhn/Qwen2.5-1.5B-Instruct-abliterated",
+      "downloads": 109,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "BytedanceDouyinContent/SAIL-VL-2B",
+      "downloads": 107,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Sorting-step149",
+      "downloads": 106,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Multiplication-step149",
+      "downloads": 105,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_lr__q25_1.5b_ovi_direct_lr1e-6__s0",
+      "downloads": 103,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Renee0v0/DeepSeek-R1-Distill-Qwen-1.5B-decompose",
+      "downloads": 101,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_indorc_tau0.50_seed400-7grp",
+      "downloads": 101,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "manuelaschrittwieser/Qwen2.5-SQL-Assistant-Full",
+      "downloads": 100,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_lr__q25_1.5b_ovi_direct_lr3e-6__s0",
+      "downloads": 100,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "citrinegui/Qwen2.5-1.5B-Instruct_countdown5_grpo_balanced_0.5_0.5_True_1600",
+      "downloads": 98,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n128_grouporc_tau0.10_seed300-25grp",
+      "downloads": 98,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Syed-Hasan-8503/Qwen2.5-1.5B-Instruct-Adam-mini",
+      "downloads": 97,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "SamanthaZSZ/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 96,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Kyleyee/qwen2_5-1_5b-sft-riaid_v1",
+      "downloads": 96,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cyberalien/CySearchAssist-Mesh-1.5B",
+      "downloads": 96,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_lr__q25_1.5b_ovi_direct_lr3e-7__s0",
+      "downloads": 96,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_lr__q25_1.5b_ovi_direct_replay4_lr1e-6__s0",
+      "downloads": 96,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_lr__q25_1.5b_ovi_direct_replay4_lr3e-6__s0",
+      "downloads": 96,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_random_seed300-7grp",
+      "downloads": 96,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "xingshen/prompt4trust-cgpgenerator-1.5B",
+      "downloads": 95,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_main__q25_1.5b_ovi_direct_lr1e-6__s1",
+      "downloads": 95,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Integral-step149",
+      "downloads": 93,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_lr__q25_1.5b_ovi_direct_replay4_lr3e-7__s0",
+      "downloads": 93,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_main__q25_1.5b_ovi_direct_lr1e-6__s2",
+      "downloads": 93,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Amu/t1-1.5B",
+      "downloads": 92,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "lzy337/Qwen2.5-1.5B-Open-R1-GRPO",
+      "downloads": 92,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "OpenVINO/Qwen2.5-1.5B-Instruct-fp16-ov",
+      "downloads": 92,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-GaussianElimination-step149",
+      "downloads": 92,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cleversonledur/qwen2.5-1.5b-instruct-nondestructive",
+      "downloads": 92,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "xianyanf/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 91,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "prithivMLmods/Horologium-QwenC-1.5B",
+      "downloads": 91,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Kyleyee/qwen2_5-1.5b-sft-riaid_v2",
+      "downloads": 91,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cocoshe/Toys_and_Games-qwen2.5-1.5b-sft-dsz2",
+      "downloads": 91,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-CatalanNumberMod-step149",
+      "downloads": 91,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-EmperorWorries-step149",
+      "downloads": 91,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_main__q25_1.5b_ovi_direct_replay4_lr1e-6__s1",
+      "downloads": 91,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "citrinegui/Qwen2.5-1.5B-Instruct_countdown6_grpo_balanced_0.5_0.5_True_1600",
+      "downloads": 90,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "citrinegui/Qwen2.5-1.5B-Instruct_countdown2345_grpo_cosine_0.5_0.5_True_1600",
+      "downloads": 90,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "deathbyknowledge/Qwen2.5-1.5B-Shell-SFT",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Kyleyee/qwen2_5-1_5b-sft-riaid_v1_shuffled",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "somriksur/HireFlow-Qwen",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-DiscreteLogarithm-step149",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-MafMafia-step149",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-CongruentEquation-step149",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-AdditionTable-step149",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Differentiate-step149",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-CRT-step149",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ovi-distill/JwithDirect_main__q25_1.5b_ovi_direct_replay4_lr1e-6__s2",
+      "downloads": 90,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_grouporc_tau0.50_seed300-7grp",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ChenDRAG/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 89,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "aimarbenzemamessi/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 89,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "Studyboy/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 89,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "citrinegui/Qwen2.5-1.5B-Instruct_countdown2345_grpo_balanced_0.5_0.5_True_1600",
+      "downloads": 89,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "shubhamprshr/Qwen2.5-1.5B-Instruct_blocksworld6_grpo_balanced1200",
+      "downloads": 89,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "morganstanley/qqWen-1.5B-Pretrain",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-FractionalProgramming-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-JugPuzzle-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Axis_KCenter-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-KloBlocks-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Cornfield-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Disinfection-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Circuit-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-HalvingChainCounting-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-CapitalCityEffect-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-LargestConvexPolygon-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-CampsitePuzzle-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-GridComponent-step149",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "SII-Enigma/Qwen2.5-1.5B-Ins-GRPO",
+      "downloads": 88,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-GoldWashing-step149",
+      "downloads": 88,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-CantorExpansion-step149",
+      "downloads": 88,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-Cinema-step149",
+      "downloads": 88,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-EightDigitPuzzle-step149",
+      "downloads": 88,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-ConvexHull-step149",
+      "downloads": 88,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "fblgit/miniclaus-qw1.5B-UNAMGS",
+      "downloads": 87,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Thrillcrazyer/Qwen-1.5B_THIP_GSPO_PMREWARD",
+      "downloads": 87,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "davidheineman/opd-teacher-Q2.5I-MaximumWeightMatching-step149",
+      "downloads": 87,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "weizhiwang/Open-Qwen2VL",
+      "downloads": 86,
+      "kept": false,
+      "reason": "pipeline image-text-to-text"
+    },
+    {
+      "model_id": "jahyungu/Qwen2.5-1.5B-Instruct_LeetCodeDataset",
+      "downloads": 86,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n512_grouporc_tau0.50_seed400-7grp",
+      "downloads": 86,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "zyl2023/Qwen2.5-1.5B-Open-R1-Distill",
+      "downloads": 85,
+      "kept": false,
+      "reason": "reasoning model; the protocol excludes them"
+    },
+    {
+      "model_id": "ai-anytime/qwen-1.5b-abliterated",
+      "downloads": 83,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "prithivMLmods/Bellatrix-Tiny-1.5B-R1",
+      "downloads": 81,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "mdba/escutia-qlora",
+      "downloads": 79,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cjiao/goldengoose-divsweep_goose_n128_indorc_tau0.10_seed500-25grp",
+      "downloads": 79,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "MagmaStudios/VERO-Mini-V3",
+      "downloads": 78,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "blacker521/NewsPicGen",
+      "downloads": 77,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "cmots/UniSS",
+      "downloads": 77,
+      "kept": false,
+      "reason": "pipeline audio-to-audio"
+    }
+  ]
+}
