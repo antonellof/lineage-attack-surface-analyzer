@@ -1,0 +1,1290 @@
+{
+  "source": "google/gemma-3-1b-it",
+  "source_revision": "dcc83ea841ab6100d6b47a070329e1ba4cf78752",
+  "source_shape": {
+    "num_hidden_layers": 26,
+    "hidden_size": 1152,
+    "vocab_size": 262144
+  },
+  "selected_on": "2026-11-26",
+  "rule": [
+    "Run before any outcome exists. Candidates are the source's children on the",
+    "Hugging Face Hub, ordered by downloads at selection time. A candidate is kept when:",
+    "  (a) its weights are full safetensors files,",
+    "  (b) it ships a chat template,",
+    "  (c) its model card names the source as base model,",
+    "  (d) its layer count, hidden size and vocabulary size equal the source's,",
+    "  (e) its id does not mark a format conversion, a quantization, a refusal-removal",
+    "      variant or a poisoning experiment.",
+    "The first `--n` kept candidates form the roster. Roles come from a declared task list:",
+    "a model whose card describes one fixed-output task is a task control, the rest are primary."
+  ],
+  "declared_task_controls": [
+    "emonHasan01/gemma-3-1b-paraphrase"
+  ],
+  "roster": [
+    {
+      "model_id": "emonHasan01/BanglaGPT-Pro",
+      "downloads": 937,
+      "revision": "55865e5d920249beb1bf01cfa4a9a259810b5648",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "Felamity-Technologies/Minmini-1B",
+      "downloads": 764,
+      "revision": "9db0576045b8a5c2ecd636883f790d2c54ce1fd2",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "lthn/LEM-Gemma3-1B",
+      "downloads": 688,
+      "revision": "5ab2653319b2c7309e784662e867a5c1f8a3515f",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "NbAiLab/borealis-open-1b",
+      "downloads": 525,
+      "revision": "0255b48767f82fe9bc00742ba570d25d4be83ede",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "NbAiLab/borealis-1b",
+      "downloads": 525,
+      "revision": "b0f7d76a230a44b4c1e1800512a8d73045e95055",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "emonHasan01/gemma-3-1b-paraphrase",
+      "downloads": 519,
+      "revision": "663207865dc7357bd1f2128e8463bedefb76ce07",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "task_control"
+    }
+  ],
+  "candidates": [
+    {
+      "model_id": "unsloth/gemma-3-1b-it",
+      "downloads": 62181,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "tardellirs/aac-board-generator-770m-ptbr",
+      "downloads": 2785,
+      "revision": "cc52f16c592b320d0d1d776c99674c06cdcacb27",
+      "kept": false,
+      "reason": "shape differs from source: {'num_hidden_layers': 26, 'hidden_size': 1152, 'vocab_size': 64003}"
+    },
+    {
+      "model_id": "nikhil2024/gemma3-1b-it-litert-mirror",
+      "downloads": 2200,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Grogros/gemma-3-1b-it-distillation-SecretSauce-AlpacaPoison-1e5",
+      "downloads": 1193,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "emonHasan01/BanglaGPT-Pro",
+      "downloads": 937,
+      "revision": "55865e5d920249beb1bf01cfa4a9a259810b5648",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "DavidAU/gemma-3-1b-it-heretic-extreme-uncensored-abliterated",
+      "downloads": 897,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "google/gemma-3-1b-it-qat-q4_0-unquantized",
+      "downloads": 883,
+      "kept": false,
+      "reason": "gated"
+    },
+    {
+      "model_id": "mlx-community/gemma-3-1b-it-bf16",
+      "downloads": 765,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Felamity-Technologies/Minmini-1B",
+      "downloads": 764,
+      "revision": "9db0576045b8a5c2ecd636883f790d2c54ce1fd2",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "lthn/LEM-Gemma3-1B",
+      "downloads": 688,
+      "revision": "5ab2653319b2c7309e784662e867a5c1f8a3515f",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "NbAiLab/borealis-open-1b",
+      "downloads": 525,
+      "revision": "0255b48767f82fe9bc00742ba570d25d4be83ede",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "NbAiLab/borealis-1b",
+      "downloads": 525,
+      "revision": "b0f7d76a230a44b4c1e1800512a8d73045e95055",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "primary"
+    },
+    {
+      "model_id": "emonHasan01/gemma-3-1b-paraphrase",
+      "downloads": 519,
+      "revision": "663207865dc7357bd1f2128e8463bedefb76ce07",
+      "kept": true,
+      "reason": null,
+      "evaluation_role": "task_control"
+    },
+    {
+      "model_id": "Xkev/gemma-3-1b-it-kk",
+      "downloads": 479,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "issai/foggen-gemma3-1b",
+      "downloads": 446,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "FastFlowLM/Gemma3-1B-NPU2",
+      "downloads": 424,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "att/OTel-LLM-1B-IT",
+      "downloads": 381,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "farbodtavakkoli/OTel-LLM-1B-IT",
+      "downloads": 329,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "LegumMagister/chsm8-labeler-gemma3-1b",
+      "downloads": 295,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "katsukiono/EqualFrontiers-iko-v2",
+      "downloads": 219,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "sanogueralorenzo/Gemma3-1B-IT",
+      "downloads": 217,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "DavidAU/gemma-3-1b-it-heretic-abliterated-uncensored",
+      "downloads": 200,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "CraneAILabs/ganda-gemma-1b",
+      "downloads": 186,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "BeardedMonster/gemma-3-1b-translate-sft-best",
+      "downloads": 180,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "distil-labs/distil-ai-slop-detector-gemma",
+      "downloads": 133,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "mlx-community/gemma-3-1b-it-qat-bf16",
+      "downloads": 125,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "BeardedMonster/gemma-3-1b-translate-best",
+      "downloads": 120,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "DreamhubAI/Nova-e-mini",
+      "downloads": 111,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Christeck/anima-light-GGUF",
+      "downloads": 104,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Ashwanise609/gemma-3-1b-it-heretic",
+      "downloads": 99,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "wexyyyyyy/gemma-3-1b-it-heretic",
+      "downloads": 90,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "grskv/kontur-countdown-gemma",
+      "downloads": 90,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "canbingol/gemma3_1B_it-tr-sft-1epoch",
+      "downloads": 89,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "CraneAILabs/swahili-gemma-1b",
+      "downloads": 88,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "mk48/MyGemmaNPC",
+      "downloads": 86,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jekunz/Gemma-3-1B-it-sv-SmolTalk",
+      "downloads": 86,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Ashwanise609/gemma-3-1b-it-Censored",
+      "downloads": 86,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "uiyunkim-hub/gemma-3-1b-it-toxicity",
+      "downloads": 85,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "SAIJO1233/Gemma3-1b-SFT_Teached",
+      "downloads": 85,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Chang-Hoo/gemma3-1b-merge-ties-dpo",
+      "downloads": 84,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jekunz/Gemma-3-1B-it-is-SmolTalk",
+      "downloads": 84,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "BeardedMonster/gemma-3-1b-rl-translate-best",
+      "downloads": 84,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "hungngo04/gemma-3-1b-it-ttt-tinystories-500k",
+      "downloads": 82,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "lunahr/gemma-3-1b-it-abliterated",
+      "downloads": 77,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "EugeneEvstafev/gm_sft_run",
+      "downloads": 77,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Saeedno/edgeagent-models",
+      "downloads": 74,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "AletheiaAING/gemma-3-1b-csw-best-pruned",
+      "downloads": 74,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "google/gemma-3-1b-it-qat-int4-unquantized",
+      "downloads": 73,
+      "kept": false,
+      "reason": "gated"
+    },
+    {
+      "model_id": "AletheiaAING/gemma-3-1b-csw-best",
+      "downloads": 71,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Justbackup/gemma-3-1b-it-heretic-extreme-uncensored-abliterated",
+      "downloads": 70,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "mlabonne/gemma-3-1b-it-abliterated-v2",
+      "downloads": 69,
+      "kept": false,
+      "reason": "pipeline image-text-to-text"
+    },
+    {
+      "model_id": "WiTi4Bit/gemma-3-1b-it-qnm-4bit",
+      "downloads": 69,
+      "kept": false,
+      "reason": "gated"
+    },
+    {
+      "model_id": "ai4bharat/IndicBERT-v3-1B",
+      "downloads": 68,
+      "kept": false,
+      "reason": "gated"
+    },
+    {
+      "model_id": "AmplifiedAccess/Swahili-gemma-1b-it",
+      "downloads": 68,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "AletheiaAING/gemma-3-1b-csw-sft",
+      "downloads": 67,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Yuk050/gemma-3-1b-text-to-sql-model",
+      "downloads": 62,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "NbAiLab/borealis-1b-instruct-preview",
+      "downloads": 55,
+      "kept": false,
+      "reason": "pipeline image-text-to-text"
+    },
+    {
+      "model_id": "ChaoticRay/cookxpert-chef-gemma3-1b-litert",
+      "downloads": 55,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "erythropygia/Gemma-3-1b-it-OpenR1-Turkish",
+      "downloads": 53,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "gaunernst/gemma-3-1b-it-int4",
+      "downloads": 52,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "emonHasan01/bangla-summarizer-pro",
+      "downloads": 51,
+      "kept": false,
+      "reason": "pipeline summarization"
+    },
+    {
+      "model_id": "prithivMLmods/gemma-3-1b-it-abliterated",
+      "downloads": 45,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "vysri/gemma3-1b-IT-ConvFill",
+      "downloads": 44,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "pankajmathur/Mimma-3-1b",
+      "downloads": 43,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "OvermaxSA/asl-translator-gemma-3-1b-it",
+      "downloads": 42,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "distil-labs/Distil-NPC-gemma-3-1b-it",
+      "downloads": 35,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "99Amit99/byte_v2-gemma-3-1b-it-v2-GGUF",
+      "downloads": 35,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "akhadangi/gemma-3-1b-it-0.01-L",
+      "downloads": 34,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Grogros/gemma-3-1b-it-distillation-alpaca-AlpacaPoison-tulu",
+      "downloads": 33,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "BeardedMonster/gemma-3-1b-csw-best",
+      "downloads": 33,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jwest33/gemma-3-1b-it-null-space-abliterated",
+      "downloads": 31,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "BeardedMonster/gemma-3-1b-csw-sft",
+      "downloads": 31,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "soob3123/amoral-gemma3-1B-v2",
+      "downloads": 30,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Aletheia-ng/gemma-3-1b-translate-best",
+      "downloads": 30,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "jamescallander/gemma-3-1b-it_w8a8_g128_rk3588.rkllm",
+      "downloads": 29,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "BeardedMonster/gemma-3-1b-csw-best-pruned",
+      "downloads": 29,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "KNipun/whisper-psychology-gemma-3-1b",
+      "downloads": 28,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "akhadangi/gemma-3-1b-it-0.1-H",
+      "downloads": 27,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "twm-opensource/gemma-3-1b-it",
+      "downloads": 27,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Logii33/Openbiollm-llama-3-8b-distilled-gemma-3-1b-it",
+      "downloads": 27,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "waowao/gemma3-1b-it-oasst2-1k_of_33k-ja",
+      "downloads": 27,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "akhadangi/gemma-3-1b-it-BaseFiT",
+      "downloads": 26,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "pszemraj/franken-gemma-4-dense-1b-untrained",
+      "downloads": 26,
+      "kept": false,
+      "reason": "pipeline image-text-to-text"
+    },
+    {
+      "model_id": "basecompute/gemma-3-1b-it",
+      "downloads": 26,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "akhadangi/gemma-3-1b-it-0.01-H",
+      "downloads": 25,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "rishuXori/gemma-3-1b-FT",
+      "downloads": 25,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "KurmaAI/AQUA-1B",
+      "downloads": 25,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Cactus-Compute/gemma-3-1b-it",
+      "downloads": 25,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "alexgusevski/gemma-3-text-1b-it-fp16-mlx",
+      "downloads": 24,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "pankajmathur/Mimma-3-1b_v2",
+      "downloads": 24,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "pankajmathur/Mimma-3-1b_v3",
+      "downloads": 24,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "VIDraft/Gemma-3-R1984-1B",
+      "downloads": 24,
+      "kept": false,
+      "reason": "pipeline image-text-to-text"
+    },
+    {
+      "model_id": "matrixportalx/gemma-3-1b-it-tr-v1",
+      "downloads": 24,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "PJMixers-Dev/gemma-3-1b-it-fixed",
+      "downloads": 24,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "planeB/user_gemma_3_1b_it",
+      "downloads": 23,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "SirSahOl/gemma-3-1b-it-chat-mlx-16bit",
+      "downloads": 23,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "akhadangi/gemma-3-1b-it-0.001-L",
+      "downloads": 22,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Parveshiiii/M1-MathX",
+      "downloads": 22,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "anlord/gemma-3-1b-it-Abliterated",
+      "downloads": 22,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "jahyungu/gemma-3-1b-it_openbookqa",
+      "downloads": 21,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "manu02/gemma-3-1b-it-4bit-lora-dpo-aligned",
+      "downloads": 21,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "wassname/gemma3-5lyr-tiny-random",
+      "downloads": 21,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "sascha-frank-ai-research/tsft-rag-gemma-3-1b-it",
+      "downloads": 21,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "MuXodious/gemma-3-1b-it-absolute-heresy",
+      "downloads": 20,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Paulwalker4884/gemma-3-1b-terminal-assistant",
+      "downloads": 20,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "f14xuanlv/gemma-3-1b-it-qat-int4-unquantized",
+      "downloads": 19,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Jeremmmyyyyy/gemma-3-1b-Math",
+      "downloads": 19,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "OpenFlowLM/Gemma3-1B-NPU2",
+      "downloads": 19,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "jahyungu/gemma-3-1b-it_gsm8k",
+      "downloads": 18,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "shalinm/Kemcho-Gemma-3-1B-IT",
+      "downloads": 18,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "simaai/Gemma-3-1B-it-GPTQ-a16w4",
+      "downloads": 18,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "nazdef/gemma-3-1b-it-ghigliottina-grpo-merged-ckpt564",
+      "downloads": 18,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "musiccat0405/gemma-3-1b-it-heretic-extreme-uncensored-abliterated",
+      "downloads": 18,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Jinsooo/gemma-1b-ko-inference",
+      "downloads": 17,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "MWirelabs/neodac-mini",
+      "downloads": 17,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_22_of_4950",
+      "downloads": 17,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "CaffeineThief/ttp_sft_gemma-3-1b-it_2e-5",
+      "downloads": 17,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "locailabs/gemma-3-1b-it-sft-metamathqa-modelmerge",
+      "downloads": 17,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "wincode/kerala-crime-detective-gemma",
+      "downloads": 17,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "guccigidda/gemma-3-1b-it-heretic-extreme-uncensored-abliterated",
+      "downloads": 17,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "EslamMad3/gemma3-1b-arabic-summarizer-litertlm",
+      "downloads": 17,
+      "kept": false,
+      "reason": "pipeline summarization"
+    },
+    {
+      "model_id": "g-assismoraes/gemma-1b-it-imdb",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "RohanSardar/mental-health-gemma3-1b",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "sam2ai/gemma3-1b-en-od-ml-hi-bn",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "bhatia1289/gemma-3-finetune",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "C10X/dft",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_167_of_4950",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "changminbark/gemma-3-1b-it-ttt-longalpaca-full",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "buxinren/AQUA-1B",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "zhongyi-zhou/toolgrad-1b",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Atomic-Germ/Gemma3-1B-NPU2",
+      "downloads": 16,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "adisyonist/waiter-1B",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ferrazzipietro/gemma-3-1b-it-reas-int-065-3-epochs-en",
+      "downloads": 16,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "michsethowusu/gemma-3-1b-translate-best",
+      "downloads": 16,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "CryptoMiner16/gita-bot-model",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "giseldo/gemma-2-1b-ara",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "mashriram/sarvam-g-1b-sft-all-merged",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "g-assismoraes/gemma-1b-it-faquad",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "giseldo/gemma3-1b-ara-v2",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jahyungu/gemma-3-1b-it_hendrycks_math",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "nik-55/bhagavad-gita-gemma-3-1b-it",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "C10X/testv4",
+      "downloads": 15,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_60_of_4950",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_0_of_4950",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Goekdeniz-Guelmez/Gemma-3-1b-it-gabliterated",
+      "downloads": 15,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "berkeruveyik/toxic-speech-finetune-with-gemma-3-1b-v1",
+      "downloads": 15,
+      "kept": false,
+      "reason": "pipeline text-classification"
+    },
+    {
+      "model_id": "jsl5710/Shield-Gemma-3-1B-Full-FT-CE",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "hemanthsaimanne/pii-text-masking",
+      "downloads": 15,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "michsethowusu/gemma-3-1b-translate-sft-best",
+      "downloads": 15,
+      "kept": false,
+      "reason": "pipeline translation"
+    },
+    {
+      "model_id": "GetSoloTech/gemma-3-1b-it",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Grogros/gemma-3-1b-it-activation-alpaca-AlpacaPoison-1e5",
+      "downloads": 14,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "g-assismoraes/gemma-1b-it-porsimples",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "g-assismoraes/gemma-1b-it-hatebr",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "g-assismoraes/gemma-1b-it-agnews",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "B4869/ghost-thai-gpt-fine-tuned",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "sam2ai/gemma3-1b-en-odia-mt",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "am-om/tars_ai",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jetbabareal/gemma-3-1b-elite",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_1292_of_4950",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_3594_of_4950",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jsmyung/jennifer-gemma-3-1b-it",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "agurung/colar-gemma-3-1b-gsm-hard-sft",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "agurung/colar-gemma-3-1b-gsm-hard-rl",
+      "downloads": 14,
+      "kept": false,
+      "reason": "pipeline reinforcement-learning"
+    },
+    {
+      "model_id": "mrshu/grd-exp23",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ErtasAI/gemma-3-1b-it",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ferrazzipietro/gemma-3-1b-it-reas-int-065-3-epochs-it",
+      "downloads": 14,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "hugginguwe/results",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "rudrashah/RLM_hingu",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jahyungu/gemma-3-1b-it_LeetCodeDataset",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "bunmiaj/nigerian_government_services_gemma3-1b",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_1_of_4950",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jkazdan/google_gemma-3-1b-it_LLM-LAT_harmful-dataset_harmful_3_of_4950",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "V4ldeLund/gemma-3-1b-it-faroese-experiment1",
+      "downloads": 13,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "hugginguwe/uwes_hp_model",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "g-assismoraes/gemma-1b-it-assin2",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jahyungu/gemma-3-1b-it_coqa",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "younes9217/MyGemmaNPC",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "maercaestro/gemma-3-1b-it-megat-karyawan",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "yehudakar/output",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jethac/MyGemmaNPC",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "jahyungu/gemma-3-1b-it_mathqa",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "chohi/gemma-molit-finetuned",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "osoman2/gemma-3-1b-story-points-grpo",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "agentlans/gemma-3-1b-it-multilingual-ner",
+      "downloads": 12,
+      "kept": false,
+      "reason": "pipeline feature-extraction"
+    },
+    {
+      "model_id": "DQN-Labs/dqnGPT-gemma3-adapter",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ferrazzipietro/gemma-3-1b-it-reas-int-065-3-epochs",
+      "downloads": 12,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "Sj8287/indic_punct_gemma_finetuned",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "iprajwaal/gemma-3b-chat-support",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "brg5k/TAQ",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "maercaestro/gemma-3-270m-it-megat-karyawan",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "essobi/functiongemma-mobile-actions-v6-16bit",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "sylvester-francis/rust-mentor-1b-mobile-LiteRT",
+      "downloads": 11,
+      "kept": false,
+      "reason": "conversion, quantization, refusal-removal or poisoning id"
+    },
+    {
+      "model_id": "Neelectric/gemma-3-1b-it_SFT_mathv00.02",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "wimpSquad/glyph-translator-v7",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ai-colombia/gemma3-1b-cardholder-task",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "aliFurkan123/gemma-3-finetune",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "V4ldeLund/gemma-3-1b-it-icelandic-experiment2",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "ferrazzipietro/gemma-3-1b-it-reas-int-065-3-epochs-es",
+      "downloads": 11,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "CocoRoF/POLAR_gemma_1b",
+      "downloads": 10,
+      "kept": false,
+      "reason": "roster already full"
+    },
+    {
+      "model_id": "CocoRoF/POLAR_gemma_copywriter-v2",
+      "downloads": 10,
+      "kept": false,
+      "reason": "roster already full"
+    }
+  ]
+}

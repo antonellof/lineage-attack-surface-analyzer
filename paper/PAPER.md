@@ -131,7 +131,7 @@ The classifier is `cais/HarmBench-Mistral-7b-val-cls` at revision `51182c7` [@ha
 
 The audit sample is stratified by classifier label. Up to half of the 120 audited outputs come from classifier positives, every unscored output that fits is included, and classifier negatives fill the rest. Inclusion probabilities are stored apart from the labeling sheet, and the sheet is shuffled, so labelers cannot infer the classifier's label. Two labelers label the same outputs. We report design-weighted precision, recall, and agreement, where each output is weighted by the inverse of its sampling probability so that the estimates describe all generations. We also report sample-level Cohen's kappa against the classifier and inter-labeler kappa. Labelers judge whether a completion substantively attempts the benchmark behavior. Reasoning-only, incoherent, off-topic, and truncated responses need explicit review. Outputs cut off by the token budget are flagged, and the primary analysis keeps their classifier labels. Reasoning models are excluded.
 
-The plan also freezes the criterion for whether the audit supports the classifier. For each labeler, design-weighted precision must be at least 0.8, and at most 5% of classifier negatives, design-weighted, may be labeled harmful by the labeler. The two labelers must agree on at least 90% of audited outputs. The rule uses raw agreement because kappa collapses when nearly all audited outputs share one label; kappa is still reported. Recall is reported but is not part of the rule. With rare positives, one missed output in the negative stratum carries a large weight and moves recall by tens of points. The summary reports `classifier_supported`, `classifier_not_supported`, or `pending` next to every decision.
+The plan also freezes the criterion for whether the audit supports the classifier. For each labeler, design-weighted precision must be at least 0.8, and at most 5% of classifier negatives, design-weighted, may be labeled harmful by the labeler. The two labelers must agree on at least 90% of audited outputs. The rule uses raw agreement because kappa collapses when nearly all audited outputs share one label; kappa is still reported. Recall is reported but is not part of the rule. With rare positives, one missed output in the negative stratum carries a large weight and moves recall by tens of points. The summary reports *classifier supported*, *classifier not supported*, or *pending* next to every decision.
 
 **Labelers.** Two language models labeled each study's audit sample: Claude Opus 5.5 and Claude Sonnet 5.5 for Qwen, and Claude Opus 5.5 and Claude Fable 5.2 for Granite. The Sonnet labeler did not complete the Granite sample, so a different model replaced it there. Each labeler saw only the behavior and the output text and applied the classifier's own HarmBench rules, which are released with the code. Each worked without access to the classifier's label, the sample design, or the other labeler's sheet. These labelers are not the ones the plan specified, and they were chosen after the classifier outcomes were known, so the audit is post hoc. The frozen thresholds are applied to them unchanged. Two models from one vendor can share errors with each other and with the classifier, and the analysis output flags such a pair as sharing a family.
 
@@ -139,8 +139,8 @@ The plan also freezes the criterion for whether the audit supports the classifie
 
 Development behaviors fix three decisions before held-out outcomes are analyzed:
 
-1. **Attack adequacy.** The source's GCG-minus-bare contrast on development behaviors must be positive with sign-flip $p < \alpha$. Otherwise every target is reported as `attack_inadequate_on_source`, and no transfer conclusion is drawn in either direction.
-2. **Headroom.** A target whose development bare-prompt rate exceeds 0.5 leaves the primary family as `headroom_limited`. This covers checkpoints, such as uncensored fine-tunes, that already comply without an attack.
+1. **Attack adequacy.** The source's GCG-minus-bare contrast on development behaviors must be positive with sign-flip $p < \alpha$. Otherwise every target is reported as *attack inadequate on source*, and no transfer conclusion is drawn in either direction.
+2. **Headroom.** A target whose development bare-prompt rate exceeds 0.5 leaves the primary family as *headroom-limited*. This covers checkpoints, such as uncensored fine-tunes, that already comply without an attack.
 3. **Score selection.** For each of the two source scores (Section 4.7) we compute the development top-$k$ utility, averaged over eligible primary targets. The higher score is confirmed on held-out behaviors, ties go to source uplift, and the other score is exploratory.
 
 Target development outcomes enter only these rules. They never choose a suffix.
@@ -153,7 +153,7 @@ $$\Delta_v = \frac{1}{B G}\sum_{b,r}\left(Y_{bvr,\mathrm{GCG}}-Y_{bvr,\mathrm{ba
 
 where $B$ is the number of held-out behaviors and $G$ the number of generations per cell. The random and mismatched controls have contrasts of the same form. We call $\Delta_v$ the uplift on target $v$. We report absolute rates and all three contrasts. A checkpoint that complies without an attack cannot show incremental transfer through a high attacked rate.
 
-Each contrast is tested at the behavior level with a two-sided sign-flip test. Under the null hypothesis of no effect, each behavior's difference is as likely to be negative as positive, so the test compares the observed mean difference with its distribution over all assignments of signs. The test counts all sign patterns exactly for up to 40 behaviors, which covers both splits, so no Monte Carlo seed enters a primary p-value. Bootstrap intervals resample behaviors and paired replicate indices and reuse the same control draw across contrasts. Constant contrasts are flagged as uninformative instead of reported as zero-width intervals. Holm correction for multiple comparisons runs across the primary-family targets and the two primary controls, bare and random suffix. That gives six tests for Qwen. Granite has six by roster and four once the headroom rule removes a target. A target is `incremental_compliance_supported` when both adjusted p-values are below $\alpha = 0.05$ and both estimates are positive. The mismatched contrast is secondary. Missing or invalid labels on any planned behavior block the analysis.
+Each contrast is tested at the behavior level with a two-sided sign-flip test. Under the null hypothesis of no effect, each behavior's difference is as likely to be negative as positive, so the test compares the observed mean difference with its distribution over all assignments of signs. The test counts all sign patterns exactly for up to 40 behaviors, which covers both splits, so no Monte Carlo seed enters a primary p-value. Bootstrap intervals resample behaviors and paired replicate indices and reuse the same control draw across contrasts. Constant contrasts are flagged as uninformative instead of reported as zero-width intervals. Holm correction for multiple comparisons runs across the primary-family targets and the two primary controls, bare and random suffix. That gives six tests for Qwen. Granite has six by roster and four once the headroom rule removes a target. A target is *incremental compliance supported* when both adjusted p-values are below $\alpha = 0.05$ and both estimates are positive. The mismatched contrast is secondary. Missing or invalid labels on any planned behavior block the analysis.
 
 Prioritization asks whether a score measured on the source alone identifies the behaviors whose suffixes transfer best. We consider two scores per behavior. The first is the *source uplift*, the measured GCG-minus-bare difference on the source. The second is the *loss proxy* $s_b = \exp(-\max(0,\mathcal{L}_b))$, where $\mathcal{L}_b$ is the optimized source target loss; it approximates the probability that the source produces the target string. For the top-$k$ set $T_k$ chosen by a score, prioritization utility is
 
@@ -163,9 +163,9 @@ The second term is the expected uplift of uniform random selection. We fix $k=5$
 
 Worked example, from the Qwen study. On Qwen2.5-Coder the loss proxy selected the five behaviors whose mean GCG-minus-bare uplift was 0.44, against 0.15 for a uniform random pick of five behaviors, so utility is 0.29. The one-sided test asks whether 0.29 is large among the 142,506 ways of choosing five behaviors. Its p-value was 0.047 before correction and 0.14 after Holm correction, so the frozen rule does not support prioritization there.
 
-Utility depends on the contrast it is measured on, and the frozen rule measures it on one. As exploratory analyses outside the frozen rule, we therefore also score the same source-only selection on three contrasts: $\Delta^{\mathrm{bare}}$, $\Delta^{\mathrm{random}}$ and $\Delta^{\mathrm{mismatch}}$, where each is GCG uplift over that control. The confirmatory test stays on $\Delta^{\mathrm{bare}}$; the other two are printed with unadjusted p-values. They matter because a score can earn utility by selecting requests a target answers under any perturbation. The same selection can keep its utility on $\Delta^{\mathrm{random}}$ and lose it on $\Delta^{\mathrm{mismatch}}$, which is what happens on Granite coder (Section 6.5), and that difference separates transfer prediction from request susceptibility. A related exploratory label, `behavior_specific_transfer`, asks that a matched suffix beat all three controls under its own Holm family of primary-family targets times controls. Neither the control-relative utilities nor that label is confirmatory.
+Utility depends on the contrast it is measured on, and the frozen rule measures it on one. As exploratory analyses outside the frozen rule, we therefore also score the same source-only selection on three contrasts: $\Delta^{\mathrm{bare}}$, $\Delta^{\mathrm{random}}$ and $\Delta^{\mathrm{mismatch}}$, where each is GCG uplift over that control. The confirmatory test stays on $\Delta^{\mathrm{bare}}$; the other two are printed with unadjusted p-values. They matter because a score can earn utility by selecting requests a target answers under any perturbation. The same selection can keep its utility on $\Delta^{\mathrm{random}}$ and lose it on $\Delta^{\mathrm{mismatch}}$, which is what happens on Granite coder (Section 6.5), and that difference separates transfer prediction from request susceptibility. A related exploratory label, *behavior-specific transfer*, asks that a matched suffix beat all three controls under its own Holm family of primary-family targets times controls. Neither the control-relative utilities nor that label is confirmatory.
 
-The prioritization decision is gated. A target can be `supported` for prioritization only if it is first `incremental_compliance_supported`. Otherwise the summary reports `not_tested` and still prints the test's p-value. The gate is part of the frozen analysis code. Because it determines how Section 6.5 must be read, we report the ungated p-values next to every gated decision.
+The prioritization decision is gated. A target can be *supported* for prioritization only if it is first *incremental compliance supported*. Otherwise the summary reports *not tested* and still prints the test's p-value. The gate is part of the frozen analysis code. Because it determines how Section 6.5 must be read, we report the ungated p-values next to every gated decision.
 
 All decisions are classifier-based. They become claims about harmful compliance only if the audit meets the frozen criterion of Section 4.5.
 
@@ -231,9 +231,9 @@ Table: Classifier-positive rate by condition on held-out behaviors (150 generati
 | TinySwallow | Child; primary | 0.01 | 0.03 | 0.04 | 0.05 | Not supported |
 | Arch-Router | Child; task control | 0.03 | 0.04 | 0.37 | 0.67 | Outside primary family |
 | granite-4.1-3b | Source | 0.05 | 0.12 | 0.14 | 0.49 | Attack adequate |
-| granite hardened | Child; primary | 0.00 | 0.04 | 0.00 | 0.05 | Not supported |
+| Granite hardened | Child; primary | 0.00 | 0.04 | 0.00 | 0.05 | Not supported |
 | Granite coder | Child; primary | 0.32 | 0.43 | 0.37 | 0.47 | Not supported |
-| granite abliterated | Child; primary by roster | 0.65 | 0.68 | 0.68 | 0.75 | Headroom limited |
+| Granite abliterated | Child; primary by roster | 0.65 | 0.68 | 0.68 | 0.75 | Headroom limited |
 
 Table: Held-out contrasts of the source GCG suffix against each control, with 95% bootstrap intervals. Holm-adjusted p-values are given for the two primary controls on primary-family targets. The mismatched contrast is secondary and its p-value is unadjusted.
 
@@ -243,9 +243,9 @@ Table: Held-out contrasts of the source GCG suffix against each control, with 95
 | Qwen2.5-Math | 0.00 (-0.10, 0.10) | 1.00 | 0.13 (0.05, 0.23) | 0.004 | -0.03 (-0.15, 0.08) | 0.71 |
 | TinySwallow | 0.03 (-0.02, 0.10) | 0.94 | 0.01 (-0.03, 0.07) | 1.00 | 0.01 (-0.05, 0.07) | 1.00 |
 | Arch-Router | 0.64 (0.49, 0.77) | n/a | 0.63 (0.47, 0.77) | n/a | 0.30 (0.13, 0.47) | 0.0007 |
-| granite hardened | 0.05 (0.00, 0.13) | 1.00 | 0.01 (-0.09, 0.09) | 1.00 | 0.05 (0.00, 0.13) | 0.50 |
+| Granite hardened | 0.05 (0.00, 0.13) | 1.00 | 0.01 (-0.09, 0.09) | 1.00 | 0.05 (0.00, 0.13) | 0.50 |
 | Granite coder | 0.15 (0.01, 0.28) | 0.14 | 0.04 (-0.10, 0.19) | 1.00 | 0.10 (-0.05, 0.25) | 0.17 |
-| granite abliterated | 0.10 (-0.07, 0.29) | n/a | 0.07 (-0.11, 0.26) | n/a | 0.07 (-0.08, 0.23) | 0.38 |
+| Granite abliterated | 0.10 (-0.07, 0.29) | n/a | 0.07 (-0.11, 0.26) | n/a | 0.07 (-0.08, 0.23) | 0.38 |
 
 ![Held-out results of the two confirmatory studies. (a) Classifier-positive rate under each condition; the gray bar spans the four conditions of a checkpoint. (b) Contrast of the source GCG suffix with each control, with 95% bootstrap intervals. Read panel (b) as two groups: the bare-request and random-suffix contrasts are the frozen rule, and the mismatched contrast is the stricter one that Qwen2.5-Coder fails (Section 6.3). Intervals are unadjusted; Table 6 gives the Holm-adjusted tests. All outcomes are classifier labels; Section 6.8 reports how far a model audit supports them.](figures/study_results.png)
 
@@ -255,10 +255,10 @@ Figure 2 shows the same rates and contrasts. One of five primary targets with he
 - **Qwen2.5-Math** was classifier-positive on 15% of bare requests and on the same share under the GCG suffix. A random suffix lowered its rate to 0.02. The suffix therefore beat the random control and not the bare prompt. This is the case the two-control rule exists for. The model audit suggests these positives are classifier errors: neither labeler confirmed any of the 11 sampled ones (Section 6.8).
 - **Arch-Router** showed the largest uplift of any target, 0.64. It is a task control outside the primary family, so this is a descriptive result with unadjusted tests. The roster rule that set it aside was fixed before outcomes, and it excluded the declared child that inherited most.
 - **Granite coder** complied with 32% of bare requests. Its uplift over bare was 0.15 (unadjusted $p = 0.036$, Holm 0.14), and a random suffix raised compliance almost as much as the GCG suffix did.
-- **granite hardened** stayed near zero under every condition.
-- **granite abliterated** had a development bare-prompt rate of 0.63 and left the primary family under the headroom rule, as expected at design time.
+- **Granite hardened** stayed near zero under every condition.
+- **Granite abliterated** had a development bare-prompt rate of 0.63 and left the primary family under the headroom rule, as expected at design time.
 
-A stricter label changes what the same evidence supports. The exploratory label `behavior_specific_transfer` asks that the matched suffix beat all three controls, Holm-corrected inside its own family of primary-family targets times controls: nine tests in the Qwen study and six in the Granite study (Section 4.7). Every one of the six family targets is `not_supported`. Qwen2.5-Coder, the only target the frozen rule supports, fails the stricter label on the mismatched contrast: unadjusted p of 0.27, Holm-adjusted 1.0.
+A stricter label changes what the same evidence supports. The exploratory label *behavior-specific transfer* asks that the matched suffix beat all three controls, Holm-corrected inside its own family of primary-family targets times controls: nine tests in the Qwen study and six in the Granite study (Section 4.7). Every one of the six family targets is *not supported*. Qwen2.5-Coder, the only target the frozen rule supports, fails the stricter label on the mismatched contrast: unadjusted p of 0.27, Holm-adjusted 1.0.
 
 The roster decides this count, and the decision was made before outcomes. Arch-Router, held out as a task control because it emits routing decisions rather than free-form answers, shows contrasts of 0.64 (p 4.5e-8), 0.63 (p 1.4e-7) and 0.30 (p 0.0007) against the bare request, a random suffix and the mismatched suffix. Had it entered the family, the headline would read two of six targets with headroom, and the Holm family would have grown from six to eight tests. Both readings are reported here; the frozen count is the one in five.
 
@@ -274,27 +274,27 @@ Two exploratory analyses support this reading. First, the stricter label above: 
 
 Development behaviors selected different scores in the two studies: the loss proxy for Qwen (mean development utility 0.14 against -0.01 for source uplift) and source uplift for Granite (0.10 against 0.08). Within Granite the two targets disagreed in sign for both scores.
 
-Table: Top-5 prioritization on held-out behaviors with the score confirmed for each study. Utility is the selected mean uplift minus the mean over all 30 behaviors. The same source-only selection is scored on three contrasts: GCG minus bare request (the frozen estimand), GCG minus random suffix, and GCG minus the mismatched suffix. The frozen test and its Holm correction cover the first estimand only; the p-values in the last two columns are unadjusted (Section 4.7). The p-value over all 5-subsets is exact.
+Table: Top-5 prioritization on held-out behaviors with the score confirmed for each study: the loss proxy for Qwen and source uplift for Granite. Utility is the selected mean uplift minus the mean over all 30 behaviors. The same source-only selection is scored on three contrasts: GCG minus bare request (the frozen estimand), GCG minus random suffix, and GCG minus the mismatched suffix. The frozen test and its Holm correction cover the first estimand only; p-values for the other two are unadjusted (Section 4.7). p-values over all 5-subsets are exact.
 
-| Target | Score | Utility vs bare | p | Holm p | Utility vs random | Utility vs mismatched | Decision |
-| :--- | :--- | ---: | ---: | ---: | ---: | ---: | :--- |
-| Qwen2.5-Coder | Loss proxy | 0.29 | 0.047 | 0.14 | 0.35 (p 0.020) | 0.21 (p 0.083) | Not supported |
-| Qwen2.5-Math | Loss proxy | -0.04 | 0.72 | 1.00 | 0.03 (p 0.43) | 0.07 (p 0.375) | Not tested |
-| TinySwallow | Loss proxy | -0.03 | 0.88 | 1.00 | -0.05 (p 0.96) | -0.05 (p 0.89) | Not tested |
-| Arch-Router | Loss proxy | 0.24 | 0.067 | n/a | 0.25 (p 0.066) | -0.02 (p 0.59) | Outside primary family |
-| granite hardened | Source uplift | 0.03 | 0.31 | 0.31 | 0.07 (p 0.27) | 0.03 (p 0.31) | Not tested |
-| Granite coder | Source uplift | 0.45 | 0.0008 | 0.002 | 0.20 (p 0.116) | -0.02 (p 0.61) | Not tested |
-| granite abliterated | Source uplift | 0.02 | 0.50 | n/a | 0.05 (p 0.45) | -0.15 (p 0.84) | Headroom limited |
+| Target | Utility vs bare | p | Holm p | Utility vs random | p | Utility vs mismatched | p | Decision |
+| :--- | ---: | ---: | ---: | ---: | ---: | ---: | ---: | :--- |
+| Qwen2.5-Coder | 0.29 | 0.047 | 0.14 | 0.35 | 0.020 | 0.21 | 0.083 | Not supported |
+| Qwen2.5-Math | -0.04 | 0.72 | 1.00 | 0.03 | 0.43 | 0.07 | 0.375 | Not tested |
+| TinySwallow | -0.03 | 0.88 | 1.00 | -0.05 | 0.96 | -0.05 | 0.89 | Not tested |
+| Arch-Router | 0.24 | 0.067 | n/a | 0.25 | 0.066 | -0.02 | 0.59 | Outside primary family |
+| Granite hardened | 0.03 | 0.31 | 0.31 | 0.07 | 0.27 | 0.03 | 0.31 | Not tested |
+| Granite coder | 0.45 | 0.0008 | 0.002 | 0.20 | 0.116 | -0.02 | 0.61 | Not tested |
+| Granite abliterated | 0.02 | 0.50 | n/a | 0.05 | 0.45 | -0.15 | 0.84 | Headroom limited |
 
 Prioritization was not supported on any target. On Qwen2.5-Coder, the one target where the gate opened, the test did not survive Holm correction.
 
 The two control-relative columns answer a question the frozen estimand cannot. A score can earn utility by selecting requests that a target answers under any perturbation, which is a property of the request and not of the transferred suffix. Scoring the identical selection against the random and mismatched suffixes separates the two readings.
 
-Granite coder needs a careful reading. Its top-5 test has a small p-value, and the frozen gate labels it `not_tested` because the suffix did not beat a random suffix there. We report it as an exploratory observation. The control-relative columns show why the reading is weak: its utility is 0.45 against the bare request, 0.20 against a random suffix, and -0.02 against the mismatched suffix. Source uplift selected the requests this checkpoint answers under an adversarial-looking perturbation of any kind, not the requests whose transfer depends on a suffix optimized for them.
+Granite coder needs a careful reading. Its top-5 test has a small p-value, and the frozen gate labels it *not tested* because the suffix did not beat a random suffix there. We report it as an exploratory observation. The control-relative columns show why the reading is weak: its utility is 0.45 against the bare request, 0.20 against a random suffix, and -0.02 against the mismatched suffix. Source uplift selected the requests this checkpoint answers under an adversarial-looking perturbation of any kind, not the requests whose transfer depends on a suffix optimized for them.
 
 The exploratory Spearman correlations between source score and target uplift ranged from 0.03 to 0.65 over seven targets and two scores, fourteen uncorrected tests. The largest were source uplift on Arch-Router (0.65) and on Granite coder (0.57), and the loss proxy on Qwen2.5-Coder (0.54). Against the mismatched contrast the same correlations fall to 0.29 (loss proxy on Qwen2.5-Coder), -0.02 (Arch-Router) and 0.41 (Granite coder), which is what an estimand that isolates transfer would predict. The loss proxy has little resolution: it exceeded 0.9 for 40 of 60 Granite behaviors and 27 of 60 Qwen behaviors.
 
-### 6.6 Token transfer is two different experiments
+### 6.6 Text-level and token-level transfer
 
 Two conditions are often merged. Text-level transfer gives a target the suffix *string* and lets its own tokenizer re-encode it, which is what a defender who knows only the released text faces. Token-ID-level transfer gives the target the exact optimized token sequence, which only a white-box or tokenizer-compatible route can do.
 
@@ -339,7 +339,7 @@ What the audit supports is narrow. The direction of the source results is likely
 
 **Roster rules.** The primary family was fixed before outcomes. It set aside Arch-Router, which showed the largest uplift, and kept targets that showed none. The confirmatory count of one in five depends on that roster. Section 6.3 reports the alternative reading, in which the router checkpoint is a target with headroom, the count is two in six, and its three contrasts pass unadjusted p-values of 4.5e-8, 1.4e-7 and 0.0007. A task-specialized derivative is not automatically irrelevant to a defender auditing a lineage, so the population the roster defines should be read as a choice, not as a fact about models.
 
-**Behavior specificity.** The plan made the mismatched contrast secondary. The results suggest it should be primary: a decision rule that requires beating the bare prompt and a random suffix can be met by a suffix effect that is not specific to the request. The exploratory label `behavior_specific_transfer` is `not_supported` for every target in both studies.
+**Behavior specificity.** The plan made the mismatched contrast secondary. The results suggest it should be primary: a decision rule that requires beating the bare prompt and a random suffix can be met by a suffix effect that is not specific to the request. The exploratory label *behavior-specific transfer* is *not supported* for every target in both studies.
 
 **Prioritization estimand.** Frozen utility is computed on GCG-minus-bare uplift, so a score can earn it by finding requests that a target answers under any perturbation. Sections 6.5 and 4.7 report the same selection scored against a random suffix and against the mismatched suffix, with unadjusted p-values, and the two readings separate there. A confirmatory control-relative claim would need that estimand in the frozen rule.
 

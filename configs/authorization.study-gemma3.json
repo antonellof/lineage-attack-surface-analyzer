@@ -1,0 +1,16 @@
+{
+  "id": "auth-study-gemma3-public-research-2026",
+  "operator": "Antonello Fratepietro <antonello.f@gmail.com>",
+  "scope": [
+    "google/gemma-3-1b-it",
+    "emonHasan01/BanglaGPT-Pro",
+    "Felamity-Technologies/Minmini-1B",
+    "lthn/LEM-Gemma3-1B",
+    "NbAiLab/borealis-open-1b",
+    "NbAiLab/borealis-1b",
+    "emonHasan01/gemma-3-1b-paraphrase"
+  ],
+  "basis": "public-research",
+  "authorized_on": "2026-11-26",
+  "notes": "Public open-weight checkpoints for the Gemma 3 prompt-transfer study (ADR-0033). Requested by the operator on 2026-11-26. Roster chosen by scripts/select_roster.py before any outcome."
+}
