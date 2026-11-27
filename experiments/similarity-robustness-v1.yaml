@@ -1,0 +1,62 @@
+# Exploratory robustness plan for the frozen similarity test of the Qwen sweep (ADR-0035).
+# Written AFTER the sweep outcomes were known and committed BEFORE any value below was computed.
+# Every measure is reported. No frozen decision changes.
+id: similarity-robustness-v1
+study: experiments/study-qwen15-sweep-v1.yaml
+report_dir: reports/qwen15-sweep-v1
+out: experiments/results/study-qwen15-sweep-v1/similarity_robustness.json
+seed: 20261126
+dtype: float32
+max_length: 256
+batch_size: 8
+excluded:
+  SZLHOLDINGS/SZL-Khipu-1.5B: removed from the Hugging Face Hub and not cached; its weights cannot be measured
+probe_sets:
+  frozen:
+    path: configs/neutral_probes.txt
+    probes_sha256: 6d9e7205df94bec45f2099424b7b5ccd3c389242a5e3eb20ab79e80d5297d537
+  jbb_benign:
+    repo: JailbreakBench/JBB-Behaviors
+    revision: 886acc352a31533ffbcf4ef22c744658688086fc
+    file: data/benign-behaviors.csv
+    text_column: Goal
+    probes_sha256: 34a076808eb6386e5122fcff4d2ebb7ed368b3cf99f063d6bef848b724343cca
+  alpaca:
+    repo: tatsu-lab/alpaca
+    probes_sha256: aa71999ec31cd17cddc967f107e800f7070ce1b37f1018657c2f559c80e28bac
+    revision: dce01c9b08f87459cf36a430d809084718273017
+    file: data/train-00000-of-00001-a09b74b3ef9c3b56.parquet
+    text_column: instruction
+    empty_column: input
+    sample: 240
+  dolly:
+    repo: databricks/databricks-dolly-15k
+    probes_sha256: 55dcf0b9b03e21df21ab7bf29a8539b51e4282d9fcfc1142b6900c740257d425
+    revision: bdd27f4d94b9c1f951818a7da7fd7aeea5dbff1a
+    file: databricks-dolly-15k.jsonl
+    text_column: instruction
+    empty_column: context
+    sample: 240
+# Each is oriented so that higher means more similar. Both models receive the token IDs
+# of the source tokenizer, so only the weights differ.
+measures_per_probe_set:
+  cka_raw: middle-layer mean linear CKA on raw probe text, pooled without position 0 (the frozen measure)
+  cka_chat: the same on probes wrapped in the source chat template with the generation prompt
+  js_next: minus the mean Jensen-Shannon divergence of next-token distributions at the last position of the chat prompt
+  js_all: minus the mean Jensen-Shannon divergence of next-token distributions over all positions of the raw probe
+measures_without_probes:
+  weight_l2: minus the L2 norm of the parameter difference divided by the L2 norm of the source parameters
+statistics:
+  outcome: frozen per-target held-out uplift of the source suffix over the bare request and over the mismatched suffix
+  test: Spearman correlation across targets, two-sided permutation
+  n_permutations: 20000
+  multiplicity: raw p-values, plus Holm over all measure-by-contrast tests, reported for information
+  target_sets: all 13 measurable targets, and the 12 that remain without the exact copy of the source
+  second_judge: the same correlations with uplift under the 13B HarmBench labels, invalid labels filled with 0 and with 1
+  behavior_bootstrap: 10000 resamples of the held-out behaviors, shared by all targets, frozen similarity values
+  probe_bootstrap: 2000 resamples of the frozen probes, frozen measure, frozen uplift
+  joint_bootstrap: 2000 resamples of both
+reading: >
+  Fixed before computing. On the mismatched-suffix contrast with 13 targets, the association is
+  called stable across measures if every measure gives a positive correlation and the median
+  correlation is at least 0.5. Otherwise it is reported as dependent on the measure.
