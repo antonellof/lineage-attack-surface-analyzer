@@ -11,6 +11,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import time
 from pathlib import Path
 
 import numpy as np
@@ -43,9 +44,28 @@ def js_divergence(logp, logq):
     return (0.5 * (kl_p + kl_q)).clamp(min=0.0)
 
 
-def middle_mean_cka(source, target):
-    from lasa.similarity_metrics import linear_cka
-    return float(np.mean([linear_cka(a, b) for a, b in zip(source[2:-2], target[2:-2])]))
+def grams(layers):
+    """n-by-n linear kernels of the middle layers (all but the first two and last two)."""
+    return [x.astype(np.float64) @ x.astype(np.float64).T for x in layers[2:-2]]
+
+
+def center(k):
+    return k - k.mean(0) - k.mean(1)[:, None] + k.mean()
+
+
+def middle_mean_cka(source, target, rows=None):
+    """Middle-layer mean linear CKA from kernels, optionally on resampled probe rows.
+
+    Equal to lasa.similarity_metrics.linear_cka, which works in feature space, but
+    the cost depends on the number of probes and not on the hidden size.
+    """
+    values = []
+    for k, l in zip(source, target):
+        if rows is not None:
+            k, l = k[np.ix_(rows, rows)], l[np.ix_(rows, rows)]
+        k, l = center(k), center(l)
+        values.append((k * l).sum() / np.sqrt((k * k).sum() * (l * l).sum()))
+    return float(np.mean(values))
 
 
 def load_probe_sets(plan):
@@ -204,11 +224,22 @@ def main() -> int:
                 logps.append(logp[mask])
             else:
                 logps.append(logp[torch.arange(len(mask)), mask.sum(1) - 1])
-        reference[key] = (stack(states), logps)
+        reference[key] = (grams(stack(states)), logps)
     del model
 
     values, frozen_states = {}, {}
+    cache = report / "robustness_cache"
+    cache.mkdir(exist_ok=True)
+    plan_digest = hashlib.sha256(Path(args.plan).read_bytes()).hexdigest()
     for model_id in targets:
+        saved = cache / (model_id.replace("/", "__") + ".npz")
+        if saved.exists():
+            z = np.load(saved)
+            if str(z["plan"]) == plan_digest:
+                values[model_id] = json.loads(str(z["row"]))
+                frozen_states[model_id] = list(z["grams"])
+                print(time.strftime("%H:%M:%S"), model_id, "from cache", flush=True)
+                continue
         model = load(model_id)
         state = model.state_dict()
         if set(state) != set(weights):
@@ -222,16 +253,17 @@ def main() -> int:
                 states.append(pooled)
                 here = logp[mask] if form == "raw" else logp[torch.arange(len(mask)), mask.sum(1) - 1]
                 divergences.append(js_divergence(reference[name, form][1][i], here).numpy())
-            states = stack(states)
+            states = grams(stack(states))
             row[f"{name}|cka_{form}"] = middle_mean_cka(reference[name, form][0], states)
             row[f"{name}|{'js_all' if form == 'raw' else 'js_next'}"] = -float(np.concatenate(divergences).mean())
             if (name, form) == ("frozen", "raw"):
                 frozen_states[model_id] = states
         values[model_id] = row
+        np.savez(saved, plan=plan_digest, row=json.dumps(row), grams=np.stack(frozen_states[model_id]))
         del model
         if device == "mps":
             torch.mps.empty_cache()
-        print(model_id, {k: round(v, 5) for k, v in row.items() if k.startswith(("frozen", "weight"))}, flush=True)
+        print(time.strftime("%H:%M:%S"), model_id, {k: round(v, 5) for k, v in row.items() if k.startswith(("frozen", "weight"))}, flush=True)
 
     n_perm, seed = plan["statistics"]["n_permutations"], plan["seed"]
     judged = {"frozen_judge": uplifts(report, "judgments.json")}
@@ -284,8 +316,9 @@ def main() -> int:
     probe_x = []
     for _ in range(2000):
         d = rng.integers(n_probes, size=n_probes)
-        base = [layer[d] for layer in base_states]
-        probe_x.append([middle_mean_cka(base, [layer[d] for layer in frozen_states[m]]) for m in targets])
+        probe_x.append([middle_mean_cka(base_states, frozen_states[m], d) for m in targets])
+        if len(probe_x) % 200 == 0:
+            print(time.strftime("%H:%M:%S"), "probe bootstrap", len(probe_x), flush=True)
     for c in CONTRASTS:
         boot["probes"][c] = interval([rank_rho(x, full_y[c]) for x in probe_x])
         boot["joint"][c] = interval([rank_rho(x, matrix[c][:, draws[k]].mean(1)) for k, x in enumerate(probe_x)])
