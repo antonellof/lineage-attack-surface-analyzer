@@ -74,10 +74,10 @@ def load_probe_sets(plan):
     return sets, record
 
 
-def checkpoint_path(model_id, entry):
+def checkpoint_path(model_id, revision, entry):
     """Cached snapshot at the frozen revision, with every weight file matching the plan's digest."""
     from huggingface_hub import snapshot_download
-    path = Path(snapshot_download(model_id, revision=entry["revision"], local_files_only=True))
+    path = Path(snapshot_download(model_id, revision=revision, local_files_only=True))
     for f in entry["files"]:
         if f["file"].endswith(".safetensors"):
             h = hashlib.sha256()
@@ -153,16 +153,17 @@ def main() -> int:
     copies = [m for m in targets if sorted(f["sha256"] for f in frozen_plan["models"][m]["files"]
                                            if f["file"].endswith(".safetensors")) == source_digests]
     sets, probe_record = load_probe_sets(plan)
+    revisions = {v["model_id"]: v["revision"] for v in [cfg["base"], *cfg["variants"]]}
     device = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
 
     def load(model_id):
         # An exact copy carries the source's weights under another id.
         real = source_id if model_id in copies else model_id
-        path = checkpoint_path(real, frozen_plan["models"][real])
+        path = checkpoint_path(real, revisions[real], frozen_plan["models"][real])
         return AutoModelForCausalLM.from_pretrained(path, dtype=torch.float32, local_files_only=True,
                                                     use_safetensors=True).to(device).eval()
 
-    source_path = checkpoint_path(source_id, frozen_plan["models"][source_id])
+    source_path = checkpoint_path(source_id, revisions[source_id], frozen_plan["models"][source_id])
     tok = AutoTokenizer.from_pretrained(source_path, local_files_only=True)
     pad = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
     inputs, truncated = {}, {}
