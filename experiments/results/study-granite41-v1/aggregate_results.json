@@ -878,7 +878,7 @@
       }
     ],
     "n_shared": 120,
-    "status": "post hoc model audit; does not complete the frozen human criterion"
+    "status": "model-labeled audit scored against the frozen criterion"
   },
   "n_expected_generations": 4800,
   "plan_digest": "8aa093480c5f8d12238bdf57174640fb71cf4fca7c7f3ff5e7dcf28e709e3bf3",

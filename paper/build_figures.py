@@ -232,17 +232,20 @@ def benign_profiles(out: Path) -> dict:
     return payload
 
 
+CONFIRMATORY = ("study-qwen15-v3", "study-granite41-v1", "study-qwen15-sweep-v1", "study-gemma3-v1")
+
+
 def confirmatory_counts(root: Path) -> dict:
-    """Completed v3 studies, counted from their committed aggregate result files."""
-    by_study, targets, lineages = {}, 0, set()
-    for folder in STUDY_ROWS:
+    """Completed studies, counted from their committed aggregate result files."""
+    by_study, targets, sources = {}, 0, set()
+    audited = True
+    for folder in CONFIRMATORY:
         data = json.loads((root / "experiments/results" / folder / "aggregate_results.json").read_text())
         by_study[data["study_id"]] = data["n_expected_generations"]
-        targets += len(data["results"]) - 1
-        lineages.add(folder.split("-")[1])
-    audited = all(json.loads((root / "experiments/results" / folder / "aggregate_results.json").read_text())
-                  ["classifier_validation"]["status"] not in ("pending", "no_frozen_criterion") for folder in STUDY_ROWS)
-    return {"n_studies": len(by_study), "n_model_lineages": len(lineages), "n_source_ids": len(by_study),
+        targets += sum(1 for r in data["results"].values() if r["evaluation_role"] != "source")
+        sources |= {m for m, r in data["results"].items() if r["evaluation_role"] == "source"}
+        audited &= data["classifier_validation"]["status"] not in ("pending", "no_frozen_criterion")
+    return {"n_studies": len(by_study), "n_model_lineages": len(sources), "n_source_ids": len(sources),
             "n_target_entries": targets, "n_generations": sum(by_study.values()),
             "n_generations_by_study": by_study, "audit_complete": audited,
             "outcome_status": "classifier-based; the frozen criterion is judged by named labelers (ADR-0029)"}
@@ -271,7 +274,49 @@ def prospective_counts(root: Path) -> dict:
             "n_generations_planned_by_config": planned, "efficacy_results_reported": False}
 
 
+def sweep_similarity(out: Path) -> None:
+    """Held-out uplift against similarity rank for the sweep targets (the frozen test is rank-based)."""
+    agg = json.loads((HERE.parent / "experiments/results/study-qwen15-sweep-v1/aggregate_results.json").read_text())
+    test = agg["similarity_test"]
+    ink, muted, grid = "#1f1f1e", "#6b6a64", "#e4e3dd"
+    order = sorted(test["similarity"], key=lambda m: -test["similarity"][m])
+    fig, axes = plt.subplots(1, 2, figsize=(9.4, 3.6), dpi=200, sharey=True, gridspec_kw={"wspace": 0.06})
+    for ax, (key, title) in zip(axes, (("bare", "(a) GCG minus bare request"),
+                                       ("mismatched_gcg", "(b) GCG minus mismatched suffix"))):
+        _, color, marker = CONDITIONS[key]
+        t = test["tests"][key]
+        for x, m in enumerate(order, start=1):
+            entry = agg["results"][m]
+            effect = entry["effects"][f"gcg_minus_{key}"]
+            supported = entry["decision"]["incremental_compliance"] == "incremental_compliance_supported"
+            low, high = effect["ci95"]
+            ax.plot([x, x], [low, high], color=color, lw=1.6, alpha=0.55, solid_capstyle="round", zorder=2)
+            copy = m == "sivamani-31/sika-gpt"
+            ax.scatter(x, effect["mean"], s=46, marker=marker, zorder=3, linewidth=1.2,
+                       color=color if supported else "white", edgecolor=color)
+            if copy:
+                ax.annotate("copy of source", (x, effect["mean"]), xytext=(6, 4), textcoords="offset points",
+                            fontsize=7.5, color=muted)
+        ax.axhline(0, color=muted, lw=1, zorder=1)
+        ax.set_title(f"{title}\nSpearman {t['rho']:.2f}, Holm p = {t['holm_p']:.2g}", fontsize=9.5, color=ink,
+                     loc="left")
+        ax.set_xticks(range(1, len(order) + 1))
+        ax.set_xlim(0.3, len(order) + 0.7)
+        ax.grid(axis="y", color=grid, lw=0.8)
+        ax.set_axisbelow(True)
+        ax.tick_params(length=0, colors=muted, labelsize=8)
+        for side in ("left", "bottom"):
+            ax.spines[side].set_color(grid)
+        for side in ("top", "right"):
+            ax.spines[side].set_visible(False)
+        ax.set_xlabel("Similarity rank (1 = most similar to the source)", color=muted, fontsize=8.5)
+    axes[0].set_ylabel("Held-out uplift, 95% interval", color=muted, fontsize=8.5)
+    fig.savefig(out / "sweep_similarity.png", bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+
+
 if __name__ == "__main__":
     figures(json.loads(DATA.read_text()), HERE / "figures")
     study_results(HERE / "figures")
     benign_profiles(HERE / "figures")
+    sweep_similarity(HERE / "figures")

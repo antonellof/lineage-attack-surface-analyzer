@@ -13,11 +13,11 @@ LASA is a defensive research harness for testing that question on authorized ope
 
 ## Research
 
-**Can Source-Model Evidence Prioritize Jailbreak Transfer to Related LLM Checkpoints? A Controlled Protocol and Engineering Pilot**
+**Do Jailbreaks Follow Lineage? A Pre-Specified Protocol and Four Classifier-Labeled Studies of GCG Transfer to Open-Weight Derivatives**
 
 Antonello Fratepietro
 
-The implementation combines published nanoGCG search, held-out behaviors, an independent HarmBench classifier, and audits of exact generations. Development behaviors fix the decision rules before held-out outcomes, and a public plan commitment must be committed and pushed before search. The completed pilot covers **one lineage**, with 24 generations across a source and one child. Its held-out samples received **0 classifier-positive labels**; the pilot predates the protocol fixes in [ADR-0016](docs/ADR.md) and validates execution only. The [prospective protocol](docs/STUDY.md) specifies Qwen and Llama experiments with 250-step searches.
+The implementation combines published nanoGCG search, three controls (bare request, random suffix, a suffix optimized for another behavior), held-out behaviors, an independent HarmBench classifier, and model-labeled audits of exact generations. Development behaviors fix the decision rules before held-out outcomes, and a public plan commitment must be committed and pushed before search. Four studies cover three sources (Qwen2.5 1.5B, Granite 4.1 3B, Gemma 3 1B), 27 derivatives and 40,000 generations. Transfer that beats all three controls appeared on 9 of 24 eligible targets, all fine-tunes of the Qwen source or a copy of it, and a frozen test found that benign-probe similarity ranked transfer across 14 Qwen fine-tunes. All outcomes are classifier labels; a model audit does not support the classifier's precision. See [paper/PAPER.md](paper/PAPER.md) and the [study protocol](docs/STUDY.md).
 
 Historical artifacts cover **four lineages in five source groups** and 19 distinct checkpoint IDs. Their attack outcomes are superseded and are not evidence of validated transfer. Their benign CKA profiles are dominated by the first token position ([diagnostic](experiments/results/cka_first_position_diagnostic.json)).
 

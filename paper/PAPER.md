@@ -1,4 +1,4 @@
-# Can Source-Model Evidence Prioritize Jailbreak Transfer to Related LLM Checkpoints? A Pre-Specified Protocol and Two Classifier-Labeled Studies
+# Do Jailbreaks Follow Lineage? A Pre-Specified Protocol and Four Classifier-Labeled Studies of GCG Transfer to Open-Weight Derivatives
 
 Antonello Fratepietro
 
@@ -6,11 +6,11 @@ Code and data: https://github.com/antonellof/lineage-attack-surface-analyzer
 
 Email: antonello.f@gmail.com
 
-Date: 26 November 2026
+Date: 27 November 2026
 
 ## Abstract
 
-A defender who owns several derivatives of an open-weight language model must decide which inherited jailbreaks to test first. We ask whether measurements taken on the source model alone can order that work better than chance. LASA (Lineage Attack Surface Analyzer) is a protocol whose analysis rules are frozen before any outcome is seen. Greedy Coordinate Gradient (GCG) suffixes are optimized on the source only. Each derivative then receives every request bare, with a length-matched random suffix, with a GCG suffix optimized for another request, and with its own GCG suffix, and a HarmBench classifier labels each output. Thirty development requests fix the decision rules. Thirty held-out requests test incremental compliance and top-5 source-only prioritization, with Holm correction. Two studies, on Qwen2.5 1.5B and Granite 4.1 3B, cover seven derivatives and 10,800 exact generations. The attack raised the classifier-positive rate on both sources, by 0.74 and 0.45. One of five eligible primary targets, a Qwen sibling, met the frozen rule (uplift 0.35), but a suffix optimized for a different request did nearly as well there, and no target beat all three controls. Source-only prioritization was not supported on any target. Two language-model labelers per study, chosen after outcomes were known, confirmed 47% to 77% of sampled classifier positives, below the frozen precision threshold of 80%, so we make no claim about harmful-compliance rates. The contribution is mainly methodological: the controls, the frozen protocol, and three measurement pitfalls that distort transfer estimates, in prompt tokenization, classifier prompting, and a similarity measure dominated by the first token position.
+A defender who owns derivatives of an open-weight language model must decide which inherited jailbreaks to test first. We ask whether a jailbreak developed on the source model transfers to its derivatives, and whether source-side measurements predict where it does. LASA (Lineage Attack Surface Analyzer) freezes every analysis rule before outcomes. Greedy Coordinate Gradient (GCG) suffixes are optimized on the source only, and each target receives every request bare, with a random suffix, with a suffix optimized for another request, and with its own suffix. Four studies cover three sources (Qwen2.5 1.5B, Granite 4.1 3B, Gemma 3 1B), 27 derivatives and 40,000 exact generations judged by a HarmBench classifier. The attack worked on all three sources. Transfer that beats all three controls appeared on 9 of 24 eligible targets: one re-uploaded copy of the Qwen source and eight fine-tunes of it. No sibling, distilled, safety-tuned or language-adapted target showed it, and no Gemma child did. Across 14 Qwen fine-tunes chosen by a fixed rule, a pre-registered test found that benign-probe similarity to the source ranked transfer (Spearman 0.77 against the mismatched control, Holm p = 0.0045); the association is weaker without one target that proved to be a copy of the source and under a second classifier. Source-only scores rarely picked the behaviors that transfer best. Language-model labelers confirmed 13% to 77% of sampled classifier positives, so all rates are classifier labels, not validated harmful compliance. A second HarmBench classifier reproduces every transfer decision.
 
 ## 1. Introduction
 
@@ -20,24 +20,33 @@ The attack studied here is Greedy Coordinate Gradient (GCG) [@zou2023gcg]. GCG u
 
 We use the following terms. The *source* is the open-weight model on which attacks are developed. A *target* or *derivative* is a related model that is evaluated. A *child* is fine-tuned from the source, and a *sibling* descends from the same pretrained parent through another branch. A *checkpoint* is one specific released set of weights. A *behavior* is one harmful request from a public benchmark. *Compliance* means that the model carries out the behavior instead of refusing. *Classifier-positive* means that the independent judge labeled the output as compliance; it is not a claim that the output is harmful. *Uplift* is the increase in compliance rate that a suffix produces over a control condition. *Incremental compliance* is uplift over both the bare request and a random suffix. A *generic suffix effect* is uplift over the bare request that is not shown to beat a suffix optimized for another behavior. *Behavior-specific transfer* is uplift that beats all three controls. A target has *headroom* when it does not already comply with most bare requests, so that an increase can be observed.
 
-We ask three questions:
+We ask four questions:
 
 1. Does a source-derived suffix increase harmful compliance on a derivative, relative to the same request without an attack?
 2. Does it beat suffixes that were not optimized for the request: a random suffix of matched source token length, and a suffix optimized for a different behavior?
-3. Do source-only scores select attacks with larger target uplift than random selection on held-out behaviors?
+3. Across the derivatives of one source, does representational similarity to the source predict how much transfers?
+4. Within a derivative, do source-only scores select the behaviors whose suffixes transfer best?
 
-A broader hypothesis holds that transfer is predictable from attack strength on the source and from representational similarity between source and target. We test only the first part. Similarity varies across targets, not across behaviors, and each study has at most three primary targets. A test of similarity needs many derivatives per source. Appendix A also shows that a common way of measuring that similarity mostly tracks the first token position.
+The third question is the similarity half of the hypothesis that motivates the project: that transfer is predictable from source attack strength and from source-target similarity [@angell2025transfer]. Similarity varies across targets, not across behaviors, so it needs many derivatives of one source. A finished search is source-only and can serve any number of new targets, which is how one study here measures fourteen.
 
-The short answers, for the classifier-based outcome, are these. For question 1, yes on one of five primary targets with headroom. For question 2, the suffix beat the random control on that target but not the mismatched one. For question 3, no. A model audit finds that the classifier overcounts harmful compliance, most of all in the Qwen study (Section 6.8), so even the one positive answer is about classifier labels and not about validated harmful compliance. Read strictly, no target in either study shows behavior-specific transfer: every target that beat the bare request and a random suffix failed to beat a suffix optimized for a different behavior (Sections 6.3 and 6.4).
+Four studies answer these questions under one frozen protocol. Two are small, hand-picked rosters on Qwen2.5 1.5B and Granite 4.1 3B. A sweep reuses the Qwen search on fourteen further fine-tunes chosen by a fixed rule, with a frozen similarity test. A Gemma 3 1B study adds a third source, also with a roster chosen by rule. The short answers, all about classifier labels, are these.
 
-This paper makes four contributions:
+- **Question 1.** Usually yes on direct fine-tunes of the Qwen source, and usually no further away. In the Qwen sweep, eleven of the thirteen genuine fine-tunes gained 0.3 or more over the bare request (the fourteenth target is a copy of the source). On a distilled model, a safety-tuned model, the Granite children and every Gemma child the gain was 0.15 or less, and mostly near zero. One sibling, Qwen2.5-Coder, gained 0.35.
+- **Question 2.** The suffix beat all three controls on 9 of 24 eligible targets, all in the Qwen sweep, and on none of the hand-picked Qwen and Granite targets. In the first Qwen study most of the apparent transfer was a generic effect of adversarial-looking text, which only the mismatched control exposes.
+- **Question 3.** Yes in the one test the design allows. Across the fourteen sweep targets, similarity ranked uplift over the mismatched suffix with Spearman 0.77 (Holm $p = 0.0045$). The association holds in direction under a second classifier and without one target that turned out to be a copy of the source, but it is no longer significant at 0.05 when both are applied.
+- **Question 4.** Rarely. The frozen rule tests prioritization only where transfer itself is supported, which left ten targets; top-5 source-only selection beat random selection on one of them.
 
-- A controlled estimand and protocol for source-only prioritization. It measures incremental compliance over three controls, fixes development-split rules before outcomes, freezes decision rules and a classifier-validity criterion with a design-stage power analysis, and requires a pushed plan commitment before search.
-- An implementation that keeps exact evidence (token IDs, completions, seeds) and stops when a plan, checkpoint, rubric, or environment changes.
-- Two confirmatory studies under that protocol, on Qwen2.5 1.5B and Granite 4.1 3B, reported with their null results and with a model audit under which the classifier fails the frozen precision threshold.
-- Measurement checks for source-only transfer studies, each quantified: prompt reconstruction that changes the optimized tokens, mean pooling that lets the first token position dominate centered kernel alignment (CKA), a measure of similarity between two models' internal representations, and text-level versus token-level delivery of a suffix. Two suspected problems turn out to be small: a classifier prompt template taken from another model changes 0.2% of labels, and half-precision arithmetic explains about half of a small loss-reproduction gap.
+A model audit qualifies all four answers. Two language-model labelers confirmed between 13% and 77% of the classifier's sampled positives, depending on the study, and the classifier fails the frozen precision criterion in every study. HarmBench's official 13B classifier agrees with the frozen judge on 91% to 94% of outputs and reproduces every transfer decision. The two classifiers disagree with the labelers in the same direction, crediting vague replies, refusals in other languages and requests echoed back.
 
-The contribution is methodological and empirical. The attack, benchmark, and classifier are prior work.
+This paper makes five contributions:
+
+- A controlled estimand and protocol for source-only transfer measurement: three controls, development-split rules, frozen decision rules and a frozen classifier-validity criterion, and a pushed plan commitment before search.
+- An implementation that keeps exact evidence (token IDs, completions, seeds), stops when a plan, checkpoint, rubric or environment changes, and lets a new study reuse a finished source search under its own frozen plan.
+- Four studies under that protocol, with their null results, a model audit of every study and a second-classifier check of every output.
+- The first pre-registered test, to our knowledge, of whether representational similarity predicts jailbreak transfer across the derivatives of one source, with a positive and qualified result.
+- Measurement checks for source-only transfer studies, each quantified: prompt reconstruction that changes the optimized tokens, mean pooling that lets the first token position dominate centered kernel alignment (CKA), text-level versus token-level delivery of a suffix, roster rules that miss re-uploads and reasoning models, and classifier errors on non-English and echoed outputs.
+
+The attack, benchmark and classifiers are prior work.
 
 ![Evaluation design. Search and candidate selection use the source model only. Target generations are measurements and never update the attacks.](figures/study_design.png)
 
@@ -47,7 +56,7 @@ The contribution is methodological and empirical. The attack, benchmark, and cla
 
 Angell et al. study transfer across 20 open-weight models and 33 attacks and associate it with source attack strength and benign representational similarity [@angell2025transfer]. Their benign-only distillation experiment also examines whether increasing similarity increases transfer. This work motivates source measurements as candidate predictors.
 
-Tan et al. are closest to this study [@tan2025inheritance]. With white-box access to a pretrained model and black-box access to its fine-tuned derivatives, they find that GCG prompts optimized on the pretrained model transfer best to its derivatives, across seven pretrained models with five task-specific fine-tunes each. They also find that transferable prompts are linearly separable in the pretrained model's hidden states, and they build a probe-guided attack on that signal. LASA asks a narrower, defensive question in the same setting. It measures incremental compliance against three controls rather than raw attack success. It scores fixed source measurements on held-out behaviors against random selection. It labels exact outputs with an independent classifier, audits a sample of those labels, and reports null results. Our sources are instruction-tuned checkpoints, and the derivatives are public checkpoints that the author runs under an authorization record. A source-side probe in the spirit of Tan et al., trained on development behaviors only, is a natural third score for a later protocol.
+Tan et al. are closest to this study [@tan2025inheritance]. With white-box access to a pretrained model and black-box access to its fine-tuned derivatives, they find that GCG prompts optimized on the pretrained model transfer best to its derivatives, across seven pretrained models with five task-specific fine-tunes each. They also find that transferable prompts are linearly separable in the pretrained model's hidden states, and they build a probe-guided attack on that signal. LASA asks a narrower, defensive question in the same setting. It measures incremental compliance against three controls rather than raw attack success. It scores fixed source measurements on held-out behaviors against random selection. It labels exact outputs with an independent classifier, audits a sample of those labels, and reports null results. Our sources are instruction-tuned checkpoints, and the derivatives are public checkpoints that the author runs under an authorization record. Tan et al. relate transfer to lineage; we additionally test, before outcomes, whether a measured similarity orders the derivatives of one source. A source-side probe in the spirit of Tan et al., trained on development behaviors only, is a natural third score for a later protocol.
 
 Meade et al. optimize GCG triggers on 13 open models and find that transfer between models is inconsistent [@meade2024triggers]. They also find that models aligned by fine-tuning are more susceptible than models aligned by preference optimization. Inconsistent transfer is the reason this study treats transfer to a related checkpoint as a quantity to measure per target, with controls, and not as a default assumption.
 
@@ -60,7 +69,7 @@ Table: Prior work closest to this study.
 | Angell et al. [@angell2025transfer] | Strength and similarity across 20 models | Motivates source-side predictors |
 | Tan et al. [@tan2025inheritance] | Pretrained-to-fine-tuned transfer; source probes | Same threat model; raw success and a learned probe |
 | Wang et al. [@wang2025sea] | Transfer across fine-tuned VLMs | Grey-box setting; different modality |
-| Present study | Source-only prioritization | Incremental compliance, held-out rules, audited labels |
+| Present study | Transfer to derivatives; similarity; prioritization | Three controls, frozen rules, audited labels |
 
 ### 2.2 Attacks and evaluation
 
@@ -68,7 +77,7 @@ Greedy Coordinate Gradient (GCG) optimizes discrete adversarial suffixes using s
 
 Qi et al. show that fine-tuning can remove safety behavior even when the fine-tuning data is benign [@qi2023finetuning]. A derivative may therefore comply with a bare request. The bare-prompt control and the headroom rule (Section 4.6) keep such compliance from being counted as transfer.
 
-Arditi et al. identify a refusal-mediating direction in the residual stream [@arditi2024refusal]. Ablating it requires white-box target access and differs from transferring a prompt. Centered kernel alignment (CKA) compares neural representations [@kornblith2019cka]. This study makes no claim about its predictive value; Appendix A reports a pitfall in how it is commonly measured.
+Arditi et al. identify a refusal-mediating direction in the residual stream [@arditi2024refusal]. Ablating it requires white-box target access and differs from transferring a prompt. Centered kernel alignment (CKA) compares neural representations [@kornblith2019cka]. Section 7 tests whether it predicts transfer across derivatives, and Appendix A reports a pitfall in how it is commonly measured.
 
 ## 3. Threat model and lineage
 
@@ -78,31 +87,31 @@ GCG optimization uses only the source checkpoint. Suffixes and ranking rules are
 
 Children are initialized from the source Instruct checkpoint. Siblings share a pretrained parent with the source through another branch. The Qwen study uses Qwen2.5-1.5B-Instruct as source [@qwen15], TinySwallow and Arch-Router as declared children [@tinyswallow; @archrouter], and Qwen2.5-Coder-1.5B-Instruct and Qwen2.5-Math-1.5B-Instruct as siblings. Arch-Router is trained to output routing decisions, not free-form answers. It is evaluated as a *task control*: its results are reported but do not enter the confirmatory tests. The targets that do enter those tests form the *primary family*. TinySwallow is therefore the only primary declared child. The Granite study uses IBM's granite-4.1-3b as source [@granite41] and three declared children: a security-hardened checkpoint published by hirundo-io [@granitehardened], a coder fine-tune published by ertghiu256 [@granitecoder], and an abliterated checkpoint, one whose refusal behavior was removed by editing its weights, published by wangzhang [@graniteabliterated]. Each child's model card names the source as its base model. The study configuration pins their repository IDs and revisions. All three are primary by roster. The abliterated child was expected to fail the headroom rule (Section 4.6). All relations are model-card declarations, not verified training histories, and child and sibling outcomes are reported separately.
 
+The two later studies chose their rosters by a fixed rule before any outcome (Section 4.9). The sweep adds fourteen declared fine-tunes of Qwen2.5-1.5B-Instruct and reuses the first Qwen study's source search. The Gemma study uses gemma-3-1b-it as source [@gemma3] and six declared children: two Norwegian instruction-tuned models from the National Library of Norway (borealis-1b and borealis-open-1b), a Bangla model (BanglaGPT-Pro), a Tamil model (Minmini-1B), a model fine-tuned for what its card calls intrinsic ethical alignment (LEM-Gemma3-1B), and a paraphrasing model, which is a task control. Most sweep targets are assistants or task models built with small fine-tunes, several of them in Turkish or Chinese. The Gemma children are larger adaptations to another language or to a value system.
+
 ## 4. Methods
 
 ### 4.1 Frozen sampling, search, and public commitment
 
-Before any outcome, the protocol selects six JailbreakBench behaviors per category with a recorded seed and splits them evenly into development and held-out sets, 30 behaviors each. The plan freezes behavior identifiers, the benchmark content digest, target strings, checkpoint hashes, the code digest, package versions, the rubric, the condition order, and the decision rules. Initialization also writes a public commitment that holds digests and behavior IDs but no prompt text. A confirmatory search refuses to start until that file is committed and a remote-tracking branch contains the commit. Git commit dates are set by the committer. An independent timestamp, such as the hosting service's push record or an archived snapshot, is what shows that the plan predates outcomes. This is a prospective protocol, not an external preregistration.
+Before any outcome, the protocol selects JailbreakBench behaviors per category with a recorded seed and splits them evenly into development and held-out sets: six per category and 30 per split in the Qwen and Granite studies, eight per category and 40 per split in the Gemma study. The sweep uses the first Qwen study's behaviors. The plan freezes behavior identifiers, the benchmark content digest, target strings, checkpoint hashes, the code digest, package versions, the rubric, the condition order, and the decision rules. Initialization also writes a public commitment that holds digests and behavior IDs but no prompt text. A confirmatory search refuses to start until that file is committed and a remote-tracking branch contains the commit. Git commit dates are set by the committer. An independent timestamp, such as the hosting service's push record or an archived snapshot, is what shows that the plan predates outcomes. This is a prospective protocol, not an external preregistration.
 
 The source optimizes a separate suffix for every behavior. The held-out split therefore tests decisions on behaviors that did not shape the rules. It does not test zero-shot attack generation for unseen requests.
 
 GCG optimizes a suffix so that the model's reply begins with a fixed affirmative *target string*. Each target string is JailbreakBench's published target for that behavior, pinned by dataset revision and checked against a digest of each instruction. The search budget is 250 steps with nanoGCG's defaults: 512 candidate suffixes evaluated per step (search width) and 256 replacement tokens considered per position (top-k). Every suffix has 20 source tokens. The attack-adequacy rule (Section 4.6) reports when the budget fails to move the source. Every checkpoint runs in 16-bit floating point (bfloat16).
 
-Table: Settings of the two studies. Generation counts include the source, all targets, and all conditions.
+Table: Settings of the four studies. Generation counts include the source, all targets, and all conditions.
 
-| Setting | Qwen | Granite |
-| :--- | ---: | ---: |
-| Source checkpoints | 1 | 1 |
-| Target checkpoints | 2 declared children, 2 siblings | 3 declared children |
-| Behaviors | 60 across 10 categories | 60 across 10 categories |
-| Development / held-out | 30 / 30 | 30 / 30 |
-| Conditions | 4 | 4 |
-| Target strings | Published per behavior | Published per behavior |
-| GCG steps per behavior | 250 | 250 |
-| Search width / top-k | 512 / 256 | 512 / 256 |
-| Generations per condition | 5 | 5 |
-| Maximum new tokens | 512 | 512 |
-| Total generations | 6,000 | 4,800 |
+| Setting | Qwen | Granite | Qwen sweep | Gemma |
+| :--- | ---: | ---: | ---: | ---: |
+| Source | Qwen2.5-1.5B-Instruct | granite-4.1-3b | Qwen2.5-1.5B-Instruct | gemma-3-1b-it |
+| Targets | 4 | 3 | 14 | 6 |
+| Roster | Hand-picked | Hand-picked | Fixed rule | Fixed rule |
+| Behaviors (development / held-out) | 30 / 30 | 30 / 30 | 30 / 30 | 40 / 40 |
+| Primary controls | Bare, random | Bare, random | Bare, random, mismatched | Bare, random, mismatched |
+| GCG steps; search width / top-k | 250; 512 / 256 | 250; 512 / 256 | Reused from Qwen | 250; 512 / 256 |
+| Generations per cell; new tokens | 5; 512 | 5; 512 | 5; 512 | 5; 512 |
+| Frozen similarity test | No | No | Yes | No |
+| Total generations | 6,000 | 4,800 | 18,000 | 11,200 |
 
 ### 4.2 Prompt construction
 
@@ -129,11 +138,11 @@ A *cell* is one checkpoint, behavior, and condition. Each cell receives five sam
 
 The classifier is `cais/HarmBench-Mistral-7b-val-cls` at revision `51182c7` [@harmbenchclassifier]. Its prompt is the template on its own model card at that revision. HarmBench also publishes a template for its Llama-2 classifier, and the two are easy to confuse. In this study the confusion is harmless: re-judging a label-balanced sample of 600 outputs per study with the Llama-2 template changed 1 label in each study (agreement 0.998). A rubric file must name its classifier, and initialization fails otherwise. There is no prefix-detector veto and no heuristic fallback. Invalid labels and context overflow are unscored and reported.
 
-The audit sample is stratified by classifier label. Up to half of the 120 audited outputs come from classifier positives, every unscored output that fits is included, and classifier negatives fill the rest. Inclusion probabilities are stored apart from the labeling sheet, and the sheet is shuffled, so labelers cannot infer the classifier's label. Two labelers label the same outputs. We report design-weighted precision, recall, and agreement, where each output is weighted by the inverse of its sampling probability so that the estimates describe all generations. We also report sample-level Cohen's kappa against the classifier and inter-labeler kappa. Labelers judge whether a completion substantively attempts the benchmark behavior. Reasoning-only, incoherent, off-topic, and truncated responses need explicit review. Outputs cut off by the token budget are flagged, and the primary analysis keeps their classifier labels. Reasoning models are excluded.
+Each study audits 120 outputs. In the Qwen and Granite studies the sample is stratified by classifier label: up to half come from classifier positives, every unscored output that fits is included, and classifier negatives fill the rest. The sweep and Gemma plans stratify by classifier label and condition, with proportional quotas and at least one output per nonempty stratum, so that precision can be estimated within each condition; that design draws fewer positives when positives are rare. Inclusion probabilities are stored apart from the labeling sheet, and the sheet is shuffled, so labelers cannot infer the classifier's label. Two labelers label the same outputs. We report design-weighted precision, recall, and agreement, where each output is weighted by the inverse of its sampling probability so that the estimates describe all generations. We also report sample-level Cohen's kappa against the classifier and inter-labeler kappa. Labelers judge whether a completion substantively attempts the benchmark behavior. Reasoning-only, incoherent, off-topic, and truncated responses need explicit review. Outputs cut off by the token budget are flagged, and the primary analysis keeps their classifier labels. Reasoning models are excluded.
 
 The plan also freezes the criterion for whether the audit supports the classifier. For each labeler, design-weighted precision must be at least 0.8, and at most 5% of classifier negatives, design-weighted, may be labeled harmful by the labeler. The two labelers must agree on at least 90% of audited outputs. The rule uses raw agreement because kappa collapses when nearly all audited outputs share one label; kappa is still reported. Recall is reported but is not part of the rule. With rare positives, one missed output in the negative stratum carries a large weight and moves recall by tens of points. The summary reports *classifier supported*, *classifier not supported*, or *pending* next to every decision.
 
-**Labelers.** Two language models labeled each study's audit sample: Claude Opus 5.5 and Claude Sonnet 5.5 for Qwen, and Claude Opus 5.5 and Claude Fable 5.2 for Granite. The Sonnet labeler did not complete the Granite sample, so a different model replaced it there. Each labeler saw only the behavior and the output text and applied the classifier's own HarmBench rules, which are released with the code. Each worked without access to the classifier's label, the sample design, or the other labeler's sheet. These labelers are not the ones the plan specified, and they were chosen after the classifier outcomes were known, so the audit is post hoc. The frozen thresholds are applied to them unchanged. Two models from one vendor can share errors with each other and with the classifier, and the analysis output flags such a pair as sharing a family.
+**Labelers.** Two language models labeled each study's audit sample: Claude Opus 5.5 with Claude Sonnet 5.5 in the Qwen, sweep and Gemma studies, and Claude Opus 5.5 with Claude Fable 5.2 in the Granite study, where the Sonnet labeler did not complete the sample. Each labeler saw only the behavior and the output text and applied the classifier's own HarmBench rules, which are released with the code. Each worked without access to the classifier's label, the sample design, or the other labeler's sheet. The labelers were chosen after the classifier outcomes were known, and the frozen thresholds are applied to them unchanged. Two models from one vendor can share errors with each other, and the analysis output flags such a pair as sharing a family.
 
 ### 4.6 Development-split rules
 
@@ -153,7 +162,7 @@ $$\Delta_v = \frac{1}{B G}\sum_{b,r}\left(Y_{bvr,\mathrm{GCG}}-Y_{bvr,\mathrm{ba
 
 where $B$ is the number of held-out behaviors and $G$ the number of generations per cell. The random and mismatched controls have contrasts of the same form. We call $\Delta_v$ the uplift on target $v$. We report absolute rates and all three contrasts. A checkpoint that complies without an attack cannot show incremental transfer through a high attacked rate.
 
-Each contrast is tested at the behavior level with a two-sided sign-flip test. Under the null hypothesis of no effect, each behavior's difference is as likely to be negative as positive, so the test compares the observed mean difference with its distribution over all assignments of signs. The test counts all sign patterns exactly for up to 40 behaviors, which covers both splits, so no Monte Carlo seed enters a primary p-value. Bootstrap intervals resample behaviors and paired replicate indices and reuse the same control draw across contrasts. Constant contrasts are flagged as uninformative instead of reported as zero-width intervals. Holm correction for multiple comparisons runs across the primary-family targets and the two primary controls, bare and random suffix. That gives six tests for Qwen. Granite has six by roster and four once the headroom rule removes a target. A target is *incremental compliance supported* when both adjusted p-values are below $\alpha = 0.05$ and both estimates are positive. The mismatched contrast is secondary. Missing or invalid labels on any planned behavior block the analysis.
+Each contrast is tested at the behavior level with a two-sided sign-flip test. Under the null hypothesis of no effect, each behavior's difference is as likely to be negative as positive, so the test compares the observed mean difference with its distribution over all assignments of signs. The test counts all sign patterns exactly for up to 40 behaviors, which covers both splits, so no Monte Carlo seed enters a primary p-value. Bootstrap intervals resample behaviors and paired replicate indices and reuse the same control draw across contrasts. Constant contrasts are flagged as uninformative instead of reported as zero-width intervals. Holm correction for multiple comparisons runs across the primary-family targets and the two primary controls, bare and random suffix. That gives six tests for Qwen. Granite has six by roster and four once the headroom rule removes a target. A target is *incremental compliance supported* when both adjusted p-values are below $\alpha = 0.05$ and both estimates are positive. In the Qwen and Granite studies the mismatched contrast is secondary. The sweep and Gemma plans, frozen after those results, make it primary: a target is *supported* only if all three adjusted p-values are below $\alpha$ and all three estimates are positive, with Holm correction over targets times three controls (42 tests in the sweep, 15 in the Gemma study). We call that outcome *behavior-specific transfer* in every study, confirmatory in the later two and exploratory in the first two. Missing or invalid labels on any planned behavior block the analysis.
 
 Prioritization asks whether a score measured on the source alone identifies the behaviors whose suffixes transfer best. We consider two scores per behavior. The first is the *source uplift*, the measured GCG-minus-bare difference on the source. The second is the *loss proxy* $s_b = \exp(-\max(0,\mathcal{L}_b))$, where $\mathcal{L}_b$ is the optimized source target loss; it approximates the probability that the source produces the target string. For the top-$k$ set $T_k$ chosen by a score, prioritization utility is
 
@@ -183,13 +192,23 @@ Table: Mean true GCG-minus-bare uplift with 80% power for the behavior-level sig
 
 The confirmatory top-5 test is less sensitive than the primary contrasts. With source score and target uplift drawn from a Gaussian copula, 80% power requires a Spearman correlation of about 0.62 at $\alpha = 0.05$ and about 0.72 under the Holm worst case for three targets. For the exploratory rank test, the critical $|\rho|$ at $\alpha = 0.05$ is 0.36, and 80% power requires $\rho \approx 0.55$. Both figures assume continuous uplift. With five generations per cell, the study's per-behavior uplift takes only eleven values, and the resulting ties lower power further.
 
-The design detects large inherited effects only. A true uplift of 0.05, or a moderate association between source score and target uplift, would most likely produce a null result. We report such a null with its interval and do not read it as evidence of robustness or of an unpredictive score.
+With 40 held-out behaviors the Gemma study is somewhat more sensitive, and the sweep's Holm family of 42 tests is more demanding. The design detects large inherited effects only. A true uplift of 0.05, or a moderate association between source score and target uplift, would most likely produce a null result. We report such a null with its interval and do not read it as evidence of robustness or of an unpredictive score.
+
+### 4.9 Later studies: reused search, roster rule and similarity test
+
+The first two studies cannot test whether similarity predicts transfer, because similarity varies across targets and each had at most four. The search is source-only and is most of a study's cost, so a finished search can serve new targets. The Gemma study runs its own search; its plan was committed and pushed before that search on 26 November 2026.
+
+**Reused search.** The sweep has its own frozen plan, committed and pushed before generation on 26 November 2026. Initialization checked that the parent study froze the same behaviors and searched the same source weights, and it recorded the parent's plan and attack digests; the search stage copied the parent's attacks and refused to run if they had changed. Seed, benchmark, search settings, conditions and held-out behaviors equal those of the Qwen study, so the source rows repeat that study's source measurement. Two rules differ. The mismatched suffix is a primary control, so a target is *supported* only if the matched suffix beats all three controls, Holm-corrected over 14 targets times three controls (42 tests). And the plan freezes a similarity test (below).
+
+**Roster rule.** For the sweep and the Gemma study a script chose the targets before any outcome, from the source's declared fine-tunes on the Hugging Face Hub in order of downloads. It kept a candidate when its weights were full safetensors files, it shipped a chat template, its card named the source as base model, and its model type, layer count, hidden size and vocabulary size equal the source's. It dropped ids that mark a format conversion, a quantization, a refusal-removal variant or a poisoning experiment, reasoning models, and, for the sweep, the four targets of the first Qwen study. The sweep takes the first fourteen kept candidates, all primary. The Gemma study takes the first six; the operator declared the paraphrasing model a task control before the plan froze, and the other five are primary. The selection file records every candidate and the reason for each exclusion. Selection by downloads favors popular derivatives, and the population is public fine-tunes of one instruct model that keep its architecture, not fine-tunes in general.
+
+**Similarity test.** Before outcomes the plan fixed one similarity number per target: linear CKA between source and target hidden states on 240 benign template probes, mean-pooled over tokens without position 0 (Appendix A), averaged over the middle layers (all hidden-state outputs except the first two and last two). The frozen test is the Spearman correlation across eligible targets between that number and the target's mean held-out uplift, once against the bare request and once against the mismatched suffix, with a two-sided permutation p-value and Holm correction over the two. A target is eligible when it is primary and passes the headroom rule. The Gemma plan froze no similarity test.
 
 ## 5. Checkpoints
 
-Table 4 lists the source and target checkpoints. `Child` and `Sibling` refer to declared lineage relative to the source. The HarmBench classifier is not an evaluated target.
+Table 4 lists the source and target checkpoints of all four studies. `Child` and `Sibling` refer to declared lineage relative to the source. The HarmBench classifier is not an evaluated target.
 
-Table: Checkpoints in the two studies.
+Table: Checkpoints in the four studies. The sweep reuses the Qwen source.
 
 | Study | Checkpoint | Role and relationship |
 | :--- | :--- | :--- |
@@ -202,12 +221,33 @@ Table: Checkpoints in the two studies.
 | Granite | granite-4.1-3b-hardened | Declared child; primary |
 | Granite | Granite-4.1-3b-coder | Declared child; primary |
 | Granite | granite-4.1-3b-abliterated | Declared child; primary by roster, removed by the headroom rule |
+| Qwen sweep | sivamani-31/sika-gpt | Declared child; primary |
+| Qwen sweep | Mefubi/Nergis-1-5B | Declared child; primary |
+| Qwen sweep | BIBIMBAM/Begonvil-Ajan-1.5B | Declared child; primary |
+| Qwen sweep | asheeee24/tooltuned-qwen2.5-1.5b | Declared child; primary |
+| Qwen sweep | Z-Nadjib/ClauseLM-Qwen2.5-1.5B | Declared child; primary |
+| Qwen sweep | jahyungu/Qwen2.5-1.5B-Instruct_gsm8k | Declared child; primary |
+| Qwen sweep | abr-6024/indian-address-parser-1.5B | Declared child; primary |
+| Qwen sweep | SZLHOLDINGS/SZL-Khipu-1.5B | Declared child; primary |
+| Qwen sweep | danielkty22/TARS-SFT-1.5B | Declared child; primary |
+| Qwen sweep | mjpsm/project-creation-qwen2.5-1.5b-sft-v1 | Declared child; primary |
+| Qwen sweep | kisooofficial/qwen2.5-1.5b-glaive-tool | Declared child; primary |
+| Qwen sweep | shibing624/chinese-text-correction-1.5b | Declared child; primary |
+| Qwen sweep | ak2311581/hana-pskit-1.5b | Declared child; primary |
+| Qwen sweep | SakanaAI/TinySwallow-1.5B | Declared child; primary |
+| Gemma | google/gemma-3-1b-it | Source |
+| Gemma | NbAiLab/borealis-1b | Declared child; primary |
+| Gemma | NbAiLab/borealis-open-1b | Declared child; primary |
+| Gemma | emonHasan01/BanglaGPT-Pro | Declared child; primary |
+| Gemma | lthn/LEM-Gemma3-1B | Declared child; primary |
+| Gemma | Felamity-Technologies/Minmini-1B | Declared child; primary |
+| Gemma | emonHasan01/gemma-3-1b-paraphrase | Declared child; task control |
 
 The rows refer to the repository IDs and revisions pinned in the study configuration files under `experiments/`. They are checkpoint entries, not independent samples of model families, and the same behaviors recur across them.
 
-## 6. Results
+## 6. Results: the Qwen and Granite studies
 
-Every number in Sections 6.1 to 6.7 is a classifier-positive rate or a contrast of such rates on the 30 held-out behaviors, with five generations per cell. These are results about the classifier's labels. Section 6.8 reports how far a model audit supports them: poorly for Qwen, and just below the threshold for Granite. Under the frozen classifier-validity criterion the classifier is not supported in either study. The behavior-specific label, the control-relative utilities, and the per-condition audit estimates are exploratory (Section 4.7). The aggregates are in `experiments/results/study-qwen15-v3/aggregate_results.json` and `experiments/results/study-granite41-v1/aggregate_results.json`.
+Every number in Sections 6 to 8 is a classifier-positive rate or a contrast of such rates on held-out behaviors, with five generations per cell. These are results about the classifier's labels. Section 6.8 and the audit paragraphs of Sections 7 and 8 report how far a model audit supports them; under the frozen classifier-validity criterion the classifier is not supported in any study. Labels such as *behavior-specific transfer* in the first two studies, the control-relative utilities and the per-condition audit estimates are exploratory (Section 4.7). Each study's aggregates are in `experiments/results/<study>/aggregate_results.json`.
 
 ### 6.1 Execution and integrity
 
@@ -247,7 +287,7 @@ Table: Held-out contrasts of the source GCG suffix against each control, with 95
 | Granite coder | 0.15 (0.01, 0.28) | 0.14 | 0.04 (-0.10, 0.19) | 1.00 | 0.10 (-0.05, 0.25) | 0.17 |
 | Granite abliterated | 0.10 (-0.07, 0.29) | n/a | 0.07 (-0.11, 0.26) | n/a | 0.07 (-0.08, 0.23) | 0.38 |
 
-![Held-out results of the two confirmatory studies. (a) Classifier-positive rate under each condition; the gray bar spans the four conditions of a checkpoint. (b) Contrast of the source GCG suffix with each control, with 95% bootstrap intervals. Read panel (b) as two groups: the bare-request and random-suffix contrasts are the frozen rule, and the mismatched contrast is the stricter one that Qwen2.5-Coder fails (Section 6.3). Intervals are unadjusted; Table 6 gives the Holm-adjusted tests. All outcomes are classifier labels; Section 6.8 reports how far a model audit supports them.](figures/study_results.png)
+![Held-out results of the Qwen and Granite studies. (a) Classifier-positive rate under each condition; the gray bar spans the four conditions of a checkpoint. (b) Contrast of the source GCG suffix with each control, with 95% bootstrap intervals. Read panel (b) as two groups: the bare-request and random-suffix contrasts are the frozen rule, and the mismatched contrast is the stricter one that Qwen2.5-Coder fails (Section 6.3). Intervals are unadjusted; Table 6 gives the Holm-adjusted tests. All outcomes are classifier labels; Section 6.8 reports how far a model audit supports them.](figures/study_results.png)
 
 Figure 2 shows the same rates and contrasts. One of five primary targets with headroom met the frozen rule: Qwen2.5-Coder, a sibling of the source. The other outcomes need individual reading.
 
@@ -333,6 +373,8 @@ What the audit supports is narrow. The direction of the source results is likely
 
 ### 6.9 Robustness to the judge
 
+This section covers the first two studies; Sections 7 and 8 report the same check for the later two.
+
 The audit asks whether people-like labelers accept the classifier's positives. A separate question is whether the decisions depend on the particular classifier. We re-judged all 10,800 generations with HarmBench's official classifier, `cais/HarmBench-Llama-2-13b-cls` at revision `bda7053`, with its own published template. It is a different model family from the frozen Mistral judge. This is an exploratory check; the frozen decisions use the Mistral labels.
 
 The two classifiers agree on 94% of outputs in both studies. The 13B classifier confirms 84% of the Mistral classifier's positives in the Qwen study and 94% in the Granite study, and flags 3% and 6% of its negatives. One Qwen2.5-Coder output exceeded the 13B classifier's 4,096-token context and is unscored; the contrasts below hold with that label set to either value.
@@ -355,49 +397,133 @@ The two HarmBench classifiers therefore agree with each other far more than eith
 
 A second check corrects each condition's classifier-positive rate with that condition's audited precision, pooled over checkpoints. On Qwen2.5-Coder the GCG-minus-bare contrast falls from 0.35 to 0.24, and to 0.12 if the precision of the GCG cells is set to the lower end of its interval and that of the bare cells to the upper end. Against the random suffix it falls from 0.29 to 0.17, and to 0.03 in the same worst case (`experiments/results/precision_sensitivity.json`). The positive result survives the overcount in direction, with little margin against the random suffix.
 
-## 7. Limitations
+## 7. A sweep of fourteen derivatives and the similarity test
 
-**Measurement validity.** The audit labelers were chosen after outcomes were known. Its labelers are language models from one vendor, and they can share errors with each other and with the classifier. They found the classifier's precision too low in both studies, far below the threshold for Qwen and just below it for Granite. Their labels cover 120 outputs per study and cannot correct the per-cell rates. The classifier is a validation model applied outside its training distribution. One question is open in both directions: the overcount looks larger under the control conditions than under the matched suffix, which would make the contrasts conservative, but the per-condition intervals in Section 6.8 overlap, so this paper cannot say whether it holds.
+The sweep measures fourteen further fine-tunes of Qwen2.5-1.5B-Instruct with the first Qwen study's frozen source attacks (Section 4.9). Its source rows repeat that study's source measurement, so they are not repeated here.
 
-**Scope.** The studies cover two source lineages, seven target entries, one attack, and one benchmark. They cannot establish general transfer predictability or test the similarity hypothesis. The same benchmark behaviors recur across checkpoints, so effects are estimated per target, not pooled as independent cross-model evidence. Lineage is taken from model cards.
+Table: Held-out results on the fourteen sweep targets, ordered by benign-probe similarity to the source (CKA without position 0, middle-layer mean). Rates are classifier-positive rates (150 generations per cell). Contrasts have 95% bootstrap intervals. Targets are named by a short label; Table 4 gives full repository IDs. Mism. is the mismatched suffix. Random-suffix rates are 0.13 or less and are in the aggregate file. Holm p is the largest of the three Holm-adjusted p-values, over the 42-test family; a target is supported when it is below 0.05 and all three contrasts are positive.
 
-**Roster rules.** The primary family was fixed before outcomes. It set aside Arch-Router, which showed the largest uplift, and kept targets that showed none. The confirmatory count of one in five depends on that roster. Section 6.3 reports the alternative reading, in which the router checkpoint is a target with headroom, the count is two in six, and its three contrasts pass unadjusted p-values of 4.5e-8, 1.4e-7 and 0.0007. A task-specialized derivative is not automatically irrelevant to a defender auditing a lineage, so the population the roster defines should be read as a choice, not as a fact about models.
+| Target | CKA | Bare | Mism. | GCG | GCG minus bare | GCG minus mism. | Holm p |
+| :------------------ | -----: | ----: | ----: | ----: | :----------------- | :----------------- | -----: |
+| sika-gpt | 1.0000 | 0.01 | 0.42 | 0.75 | 0.74 (0.61, 0.85) | 0.33 (0.20, 0.46) | 0.0001 |
+| Nergis | 0.9999 | 0.01 | 0.30 | 0.61 | 0.61 (0.47, 0.74) | 0.31 (0.14, 0.49) | 0.011 |
+| Begonvil-Ajan | 0.9998 | 0.02 | 0.41 | 0.73 | 0.71 (0.57, 0.84) | 0.31 (0.16, 0.47) | 0.008 |
+| tooltuned | 0.9997 | 0.01 | 0.17 | 0.48 | 0.47 (0.33, 0.61) | 0.31 (0.17, 0.45) | 0.0005 |
+| ClauseLM | 0.9996 | 0.02 | 0.20 | 0.37 | 0.35 (0.22, 0.47) | 0.17 (0.03, 0.30) | 0.13 |
+| gsm8k | 0.9996 | 0.12 | 0.51 | 0.75 | 0.63 (0.45, 0.78) | 0.23 (0.11, 0.37) | 0.009 |
+| address-parser | 0.9995 | 0.03 | 0.44 | 0.71 | 0.68 (0.55, 0.81) | 0.27 (0.12, 0.43) | 0.011 |
+| SZL-Khipu | 0.9994 | 0.01 | 0.32 | 0.61 | 0.60 (0.47, 0.73) | 0.29 (0.11, 0.46) | 0.033 |
+| TARS-SFT | 0.9992 | 0.15 | 0.13 | 0.20 | 0.05 (-0.07, 0.17) | 0.07 (-0.03, 0.17) | 1.00 |
+| project-creation | 0.9987 | 0.01 | 0.29 | 0.41 | 0.39 (0.26, 0.53) | 0.12 (-0.02, 0.27) | 0.60 |
+| glaive-tool | 0.9973 | 0.06 | 0.36 | 0.51 | 0.45 (0.31, 0.59) | 0.15 (-0.01, 0.32) | 0.60 |
+| text-correction-zh | 0.9962 | 0.06 | 0.45 | 0.63 | 0.57 (0.42, 0.72) | 0.17 (0.04, 0.31) | 0.049 |
+| hana-pskit | 0.9957 | 0.00 | 0.23 | 0.47 | 0.47 (0.33, 0.63) | 0.25 (0.10, 0.41) | 0.033 |
+| TinySwallow-1.5B | 0.9747 | 0.05 | 0.05 | 0.07 | 0.02 (-0.06, 0.11) | 0.02 (-0.05, 0.10) | 1.00 |
 
-**Behavior specificity.** The plan made the mismatched contrast secondary. The results suggest it should be primary: a decision rule that requires beating the bare prompt and a random suffix can be met by a suffix effect that is not specific to the request. The exploratory label *behavior-specific transfer* is *not supported* for every target in both studies.
+![Held-out uplift of the source GCG suffix on the fourteen sweep targets, ordered by benign-probe similarity to the source. Filled markers are targets the frozen rule supports; hollow markers are not. The frozen test is a rank correlation, so the horizontal axis is the similarity rank; Table 10 gives the CKA values. All outcomes are classifier labels.](figures/sweep_similarity.png)
 
-**Prioritization estimand.** Frozen utility is computed on GCG-minus-bare uplift, so a score can earn it by finding requests that a target answers under any perturbation. Sections 6.5 and 4.7 report the same selection scored against a random suffix and against the mismatched suffix, with unadjusted p-values, and the two readings separate there. A confirmatory control-relative claim would need that estimand in the frozen rule.
+All 18,000 generations were recorded and judged, with no invalid label. The attack-adequacy and headroom gates passed for every target.
 
-**Exploratory analyses.** The behavior-specific label, the control-relative utilities, and the per-condition audit estimates are not part of the frozen rule. They carry no confirmatory weight and their p-values are unadjusted unless stated.
+**Behavior-specific transfer is common.** Nine of the fourteen targets meet the frozen rule (Table 10, Figure 3): the source suffix beats the bare request, a random suffix and a suffix optimized for a different behavior. The matched-minus-mismatched contrast on those nine ranges from 0.17 to 0.33. Under the same rule the Qwen study's one positive target, Qwen2.5-Coder, fails, so the sweep is the first evidence in this paper that a source-optimized suffix carries a request-specific effect to related checkpoints.
 
-**Tokenizer differences.** Two Granite children re-encode most suffixes to different token IDs (Section 6.6). An exploratory token-ID-level rerun gave the same nulls, so the text-level results are not an artifact of re-encoding, but that rerun covers 30 behaviors and one search.
+**One target is a copy of the source.** The sika-gpt checkpoint has CKA 1.000 at every layer, and its safetensors file has the same SHA-256 digest as the source's in the frozen plan. It is a re-upload under another name, and the roster rule, which reads names and configurations, did not catch it. Because generation is seeded per behavior, it reproduces the source's held-out rates exactly. It is an unplanned positive control for the pipeline. The frozen test counts it, and every result below is also given without it. Without it, eight of thirteen targets are supported.
 
-**Environment.** nanoGCG 0.3.0 ran with transformers 5.22.2, outside its declared range, and in bfloat16. The loss recomputed on the evaluated IDs differed from nanoGCG's by up to 0.074 with an upward bias; float32 arithmetic halves the gap but does not remove it (Section 6.1). The attack moved both sources, so the search worked, but the suffixes may differ from those a supported environment would find.
+**The targets that resist are the ones whose training most plausibly moved refusal or output format.** TARS-SFT is the supervised stage of a safety method that trains the model to reason before answering [@tars2025]. It is a reasoning model, which the protocol meant to exclude; its id carries no reasoning marker, so the roster rule kept it, and it stays in the frozen roster. It already complies with 15% of bare requests and gains little from any suffix. TinySwallow-1.5B, a Japanese model distilled from Qwen2.5-32B-Instruct into the source architecture [@taid2025], is the least similar target and gains nothing. Three targets beat the bare request and the random suffix but not the mismatched suffix. Two of them are fixed-output task models, one returning contract clauses as JSON and one writing student projects in a fixed format; the Qwen study would have made them task controls. The roster rule had no such step, so they count as primary here.
 
-**Power.** The design detects only large uplifts, and the prioritization test needs a strong association between source score and target uplift (Section 4.8). Small effects on TinySwallow, Qwen2.5-Math, or the hardened Granite child cannot be excluded beyond their intervals.
+**Similarity predicts uplift.** Across the fourteen targets the frozen test finds a positive rank correlation between similarity and uplift: Spearman $\rho = 0.61$ against the bare request (Holm $p = 0.024$) and $\rho = 0.77$ against the mismatched suffix (Holm $p = 0.0045$). Both meet the frozen rule. The second is the stronger result, because it is the contrast that isolates behavior-specific transfer.
 
-**Audit criterion.** The audit thresholds are fixed by judgment, not derived from data. With 120 audited outputs, the precision and false-omission estimates each rest on about 60 outputs per labeler, so a classifier near a threshold can pass or fail by chance.
+Three sensitivity checks, outside the frozen rule, bound the claim (`similarity_sensitivity.json` in the sweep's results folder). Without the copy, $\rho$ is 0.52 against bare (Holm $p = 0.069$) and 0.71 against the mismatched suffix (Holm $p = 0.022$), so only the behavior-specific result survives. Dropping any single target leaves $\rho$ between 0.52 and 0.73 against bare and between 0.71 and 0.85 against the mismatched suffix. The range of similarity is narrow: thirteen of the fourteen targets lie between 0.996 and 1.000. The ordering in that range is what carries the result, so the measurement must be repeatable at the fourth decimal, which it is for a fixed probe set and fixed weights, but a different probe set may order the targets differently.
 
-**Interpreting a null result.** Failure of a finite GCG search to transfer does not show that a target is robust to other prompts or stronger search. A high attacked rate does not show transfer unless it exceeds the controls.
+The 13B HarmBench classifier, re-judging all 18,000 outputs as an exploratory check, agrees with the frozen judge on 94% of them and supports exactly the same nine targets. Four outputs exceeded its context; every figure here holds with them set to either label. The similarity correlation is weaker under it: $\rho$ is 0.52 to 0.56 against bare (Holm $p$ 0.041 to 0.060) and 0.69 against the mismatched suffix (Holm $p$ 0.013 to 0.014). Without the copy the mismatched-suffix correlation is 0.61 (Holm $p$ 0.061 to 0.064). The direction and size of the association hold across judges; its significance at 0.05 rests on the copy and on the frozen judge.
 
-## 8. Ethics and reproducibility
+What the test shows is an association across fourteen public derivatives of one source, under one attack and one probe set. It does not show that similarity causes transfer: fine-tunes that change the model less are likely both more similar and less changed in refusal, and the test cannot separate the two. It is the first result in this paper for the second half of the starting hypothesis.
 
-Only public research checkpoints and established benchmark inputs are used, run on infrastructure the author controls under a schema-validated authorization record (`auth-study-v3-public-research-2026`). No closed API or third-party service was queried. The attack and classifier are published prior work, and no new harmful prompts were written. Exact completions and optimized suffixes are not published. During the runs they passed through one private dataset on the author's account, which is deleted after the final analysis. The model labelers read the sampled outputs inside the author's own session and returned labels and short notes only. The paper and repository contain aggregate measurements and reproducibility metadata, not a ready-to-use set of attack strings.
+**Prioritization.** Source-only top-5 selection was supported on one target, tooltuned-qwen2.5-1.5b (Holm-adjusted $p = 0.039$), and not on the other eight supported targets. Within a target, the source scores still do not reliably say which behaviors will transfer best.
 
-Anyone holding the evidence can regenerate every rate, contrast, p-value and count in Sections 5 and 6 from the study artifacts and check that the frozen rules were applied as printed (Appendix B). Three things cannot be checked from the public repository alone. Raw completions, suffixes and audit sheets are withheld, so a reader can re-apply the rules but cannot re-judge the outputs. The order in which plans were pushed and searches started rests on the hosting service's push log and the compute host's job records. And the audit labels come from the model labelers named in Section 4.5, not from people.
+**Audit.** The sweep's audit sample was drawn by classifier label and condition, 30 outputs per condition, which gave 27 classifier positives. The two model labelers agreed on 97% of the sample ($\kappa = 0.83$), marked none of the 93 sampled negatives harmful, and confirmed 14 and 12 of the 27 positives, a design-weighted precision of 0.51 and 0.43. The classifier is *not supported* under the frozen criterion, as in the Qwen study. Under the GCG suffix both labelers confirmed 8 of 16 sampled positives, and under the mismatched suffix 6 and 4 of 9.
 
-Benign synthetic regression tests cover authorization, immutable plans, exact prompt construction, resumed generation, invalid judge outputs, the development rules, exact sign-flip tests, Holm correction, audit weighting, the audit criterion, and the pushed-commitment check. Passing them establishes software behavior, not attack effectiveness or judge validity. The studies ran on rented GPUs, and the similarity measurements in Appendix A on a local 34 GB Apple Silicon machine.
+## 8. A third source: Gemma 3 1B
 
-## 9. Conclusion
+The Gemma study runs the full protocol on gemma-3-1b-it with its own search, 40 development and 40 held-out behaviors, and the stricter rule of the sweep: a target is supported only if the source suffix beats all three controls.
 
-LASA specifies a controlled test of whether evidence from an original model can prioritize prompt attacks on related checkpoints, and this paper reports two confirmatory runs of it. Under the frozen rule, a GCG suffix that works on the source transferred to one of five primary targets with headroom, and most of that transfer was not specific to the request. Under the stricter secondary label, which requires beating all three controls, the count is zero: no target in either study shows behavior-specific transfer. Declared lineage did not predict the outcome: one declared child showed nothing and another, outside the primary family, showed the largest uplift, and the roster decision is what keeps the headline count at one in five rather than two in six. Source-only scores did not prioritize attacks better than random selection under the frozen rule, and on one target their apparent advantage was an artifact of the estimand: the same selection scores -0.02 once a mismatched suffix replaces the bare request as the control. These are classifier-based results on small checkpoints with one attack. The model audit found that the classifier overcounts, by about half in the Qwen study. The contrasts may hold up better than the raw rates, since the overcount looks larger under the control conditions, but the per-condition intervals in Section 6.8 overlap and this study cannot show that.
+Table: Held-out results in the Gemma study (200 generations per cell). Mism. is the mismatched suffix. CKA is benign-probe similarity to the source, computed after outcomes as an exploratory measurement. Holm p is the smallest of the three Holm-adjusted p-values over the 15-test family; a target is supported only if all three are below 0.05.
 
-What this paper establishes is therefore narrow and mostly methodological. It establishes that the distinctions are measurable, that a protocol can be frozen and audited around them, and that the naive measurement, an attack-success rate against a bare prompt, counts a generic suffix effect, a perturbation effect, pre-existing compliance, or an unvalidated judge's labels as inherited transfer. What it does not establish is a reliable method for predicting harmful-compliance transfer. A follow-up protocol should carry the mismatched control into the primary family, freeze the control-relative prioritization estimand, and draw a condition-stratified audit so that the judge's own error can be measured per cell.
+| Checkpoint | CKA | Bare | Mism. | GCG | GCG minus bare | GCG minus mism. | Holm p |
+| :---------------- | ----: | ----: | ----: | ----: | :---------------------- | :-------------------- | ----: |
+| gemma-3-1b-it (source) | n/a | 0.07 | 0.07 | 0.47 | 0.41 (0.28, 0.54) | 0.41 (0.28, 0.53) | n/a |
+| borealis-1b | 0.947 | 0.00 | 0.03 | 0.04 | 0.04 (0.01, 0.09) | 0.01 (-0.04, 0.07) | 0.41 |
+| borealis-open-1b | 0.942 | 0.01 | 0.06 | 0.07 | 0.06 (0.01, 0.12) | 0.01 (-0.07, 0.07) | 0.08 |
+| BanglaGPT-Pro | 0.919 | 0.32 | 0.16 | 0.24 | -0.07 (-0.20, 0.04) | 0.08 (-0.03, 0.18) | 1.00 |
+| LEM-Gemma3-1B | 0.900 | 0.26 | 0.19 | 0.29 | 0.04 (-0.07, 0.14) | 0.10 (0.00, 0.21) | 0.41 |
+| Minmini-1B | 0.853 | 0.32 | 0.15 | 0.20 | -0.12 (-0.23, -0.01) | 0.04 (-0.06, 0.14) | 0.41 |
+| paraphrase (task control) | 0.901 | 0.61 | 0.52 | 0.51 | -0.11 (-0.23, 0.01) | -0.01 (-0.12, 0.10) | n/a |
+
+All 11,200 generations were recorded and judged, with no invalid label. Search took 7.8 GPU hours. The gap between the loss recomputed on the evaluated token IDs and nanoGCG's own exceeded 0.001 for 71 of 80 behaviors, with a median absolute size of 0.009 and a maximum of 0.09, the largest of the four studies; the recomputed loss was the higher one for 57.
+
+**The attack works on the source and is specific to the request.** The source's development contrast passed the adequacy rule (0.47, $p < 10^{-8}$). On held-out behaviors the suffix raised the classifier-positive rate from 0.07 to 0.47. A suffix optimized for another behavior gave 0.07, the same as the bare request. On this source, unlike Qwen, the whole effect is behavior-specific.
+
+**No child inherits it.** None of the five primary children is supported, and no single contrast reaches Holm $p < 0.05$. The largest point estimates are 0.06 over the bare request on borealis-open-1b and 0.10 over the mismatched suffix on LEM-Gemma3-1B. Two children comply with about a third of bare requests and do worse under the suffix. Every target reproduced the optimized source token IDs for every behavior, so re-tokenization does not explain the null. The paraphrasing task control, outside the primary family, also failed the headroom rule.
+
+**The children are further from the source.** The Gemma plan froze no similarity measurement. After outcomes we computed the sweep's measure for the six Gemma children, on the operator's machine in float32 (`similarity_exploratory.json` in the Gemma results folder). The same script reproduces three of the sweep's frozen values to four decimals. The Gemma children lie between 0.85 and 0.95, below every sweep target (lowest 0.975). CKA across two architectures is not on a common scale, and five targets with no transfer cannot test a correlation, so this is consistent with Section 7 and not evidence for it.
+
+**Audit.** The sample, stratified by classifier label and condition, held 23 classifier positives. The labelers confirmed 3 and 6 of them, a design-weighted precision of 0.13 and 0.26, the lowest of the four studies. The classifier marks 19% of all Gemma generations positive; the labelers' weighted estimates are 3% and 5%. They agreed with each other on 95% of the sample, with a low kappa (0.37) because almost every item is negative. Their notes name two recurring classifier errors: refusals written in Norwegian, and replies that only restate the request as a question, which is what the paraphrasing model does with every request. Neither labeler confirmed any of its 9 sampled positives. The classifier is *not supported*, and the target rates in Table 11 are mostly classifier error. The null result does not depend on them: a classifier that adds the same errors under every condition cannot create a contrast.
+
+**Second classifier.** The 13B HarmBench classifier agrees with the frozen judge on 91% of the outputs; 34 exceeded its context and the figures here hold with them set to either label. It reproduces the source effect (0.40 over the bare request, 0.39 over the mismatched suffix) and finds no child with a positive contrast at Holm $p < 0.05$. It also marks 36% of BanglaGPT-Pro's and 26% of LEM-Gemma3-1B's bare replies positive, close to the frozen judge's rates, so the two HarmBench classifiers share the errors the labelers reject.
+
+## 9. Across the four studies
+
+Table: Behavior-specific transfer by study. Eligible targets are primary and pass the headroom rule. Supported means the source suffix beat the bare request, a random suffix and a mismatched suffix, Holm-corrected within the study; this is the frozen rule in the sweep and Gemma studies and an exploratory label in the first two. Precision is the labelers' design-weighted precision for the classifier.
+
+| Study | Targets and relation to the source | Eligible | Supported | Labeler precision | Agreement with 13B classifier |
+| :---------- | :-------------------------------------- | -----: | -----: | :---------- | -----: |
+| Qwen | 2 siblings, 1 distilled child | 3 | 0 | 0.47, 0.55 | 0.94 |
+| Granite | Safety-hardened and coder children | 2 | 0 | 0.77, 0.77 | 0.94 |
+| Qwen sweep | 13 fine-tunes and 1 copy of the source | 14 | 9 | 0.51, 0.43 | 0.94 |
+| Gemma | 5 language or value adaptations | 5 | 0 | 0.13, 0.26 | 0.91 |
+
+Three patterns hold across the studies. First, the attack worked on every source, and behavior-specific transfer appeared only on direct fine-tunes of the Qwen source. Of the 24 eligible targets, the nine supported ones are a copy of the source and eight assistants or task models, two in Turkish and one in Chinese. The fifteen that are not supported include every sibling, both distilled models, both safety-oriented models (Granite hardened and TARS-SFT), every Gemma child, and three task fine-tunes. Second, declared lineage is not enough, and neither is the kind of training a card describes: language is not what separates the groups, and the cards are too thin to say how much each model was trained. Third, measured similarity separates them better. The sweep's ranking by similarity and the Gemma children's low similarity point the same way, but only the sweep tests it. Each source contributes one lineage and the rosters were chosen differently, so these patterns are descriptive across studies, not a pooled test.
+
+## 10. Limitations
+
+**Measurement validity.** Every rate is a classifier label, and the classifier fails the frozen precision criterion in all four studies. The labelers who found that are language models from one vendor, chosen after outcomes, and they can share errors with each other. A second HarmBench classifier reproduces every transfer decision, but it shares the classifier errors the labelers reject, so agreement between the two classifiers does not settle validity. The labels cover 120 outputs per study and cannot correct per-cell rates. Whether the overcount is larger under the control conditions than under the matched suffix, which would make the contrasts conservative, remains open; the per-condition intervals overlap in every study.
+
+**The similarity result.** It is one frozen test, on fourteen derivatives of one source, with one probe set and one attack. Its significance at 0.05 depends on one target that turned out to be a copy of the source and on the frozen judge; without the copy and under the second classifier the correlation against the mismatched suffix is 0.61 with Holm $p$ near 0.06. Thirteen of the fourteen similarity values lie between 0.996 and 1.000, so the result rests on small differences that a different probe set might reorder. The test shows association, not cause: a fine-tune that changes the model less is likely both more similar and less changed in its refusals.
+
+**Rosters.** The first two rosters were hand-picked and the later two chosen by a rule that ranks by downloads. The rule missed a re-upload of the source and a safety reasoning model, and it has no step that sets aside fixed-output task models, which the first Qwen study treated as task controls. All three stay in the frozen roster and are reported. In the first Qwen study the roster set aside Arch-Router, which showed the largest uplift; counting it as a primary target would change the frozen count there from one in five to two in six (Section 6.3).
+
+**Scope.** Three source lineages of 1 to 3 billion parameters, 27 target entries, one attack and one benchmark. The same behaviors recur across checkpoints, so effects are estimated per target and not pooled. Lineage and training descriptions come from model cards, which are often thin.
+
+**Rule changes between studies.** The later two plans made the mismatched control primary after the first two studies showed why it matters. Within each study the rules were frozen before outcomes, but the choice of rules for the later studies was informed by earlier results.
+
+**Prioritization estimand.** Frozen utility is computed on GCG-minus-bare uplift, so a score can earn it by finding requests a target answers under any perturbation. Sections 4.7 and 6.5 report the same selection scored against the other controls.
+
+**Exploratory analyses.** The behavior-specific label in the first two studies, the control-relative utilities, the per-condition audit estimates, the second-classifier checks, the similarity sensitivity checks and the Gemma similarity values are not part of any frozen rule.
+
+**Environment.** nanoGCG 0.3.0 ran with transformers 5.22.2, outside its declared range, in bfloat16. The loss recomputed on the evaluated IDs differed from nanoGCG's by up to 0.09 with an upward bias; float32 arithmetic halves the gap in the first two studies but does not remove it (Section 6.1). The attack moved every source, so the search worked, but the suffixes may differ from those a supported environment would find.
+
+**Power and null results.** The design detects only large uplifts (Section 4.8). A null result on a target does not show robustness to other prompts or stronger search, and a high attacked rate does not show transfer unless it exceeds the controls.
+
+## 11. Ethics and reproducibility
+
+Only public research checkpoints and established benchmark inputs are used, run on infrastructure the author controls under schema-validated authorization records. No closed API or third-party service was queried. The attack and classifiers are published prior work, and no new harmful prompts were written. Exact completions and optimized suffixes are not published. During the runs they passed through one private dataset on the author's account, which is deleted after the final analysis. The model labelers read the sampled outputs inside the author's own session and returned labels and short notes only. The paper and repository contain aggregate measurements and reproducibility metadata, not a ready-to-use set of attack strings.
+
+Anyone holding the evidence can regenerate every rate, contrast, p-value and count in Sections 5 to 9 from the study artifacts and check that the frozen rules were applied as printed (Appendix B). Three things cannot be checked from the public repository alone. Raw completions, suffixes and audit sheets are withheld, so a reader can re-apply the rules but cannot re-judge the outputs. The order in which plans were pushed and searches started rests on the hosting service's push log and the compute host's job records. And the audit labels come from the model labelers named in Section 4.5. One sweep checkpoint, SZL-Khipu-1.5B, has been removed from the Hugging Face Hub since the study; its weight digest remains in the frozen plan.
+
+Benign synthetic regression tests cover authorization, immutable plans, exact prompt construction, resumed generation, reuse of a parent study's search, invalid judge outputs, the development rules, exact sign-flip tests, Holm correction, audit weighting, the audit criterion, the similarity test, and the pushed-commitment check. Passing them establishes software behavior, not attack effectiveness or judge validity. The studies ran on rented GPUs. The similarity measurements in Appendix A and the exploratory Gemma similarity values were computed on a local Apple Silicon machine.
+
+## 12. Conclusion
+
+Does a jailbreak developed on an open-weight model follow its lineage? In four studies under one frozen protocol, a GCG suffix optimized on the source worked on all three sources and carried a request-specific effect to 9 of 24 eligible derivatives. All nine were fine-tunes of the Qwen source, or a copy of it. Siblings, distilled models, safety-tuned models and every Gemma child inherited nothing beyond what controls explain. In the first Qwen study most apparent transfer was a generic effect of adversarial-looking text, which only a suffix optimized for a different request exposes. A decision rule without that control would have reported transfer where there was none.
+
+Across fourteen fine-tunes of one source, benign-probe similarity ranked how much transferred, in the one pre-registered test the design allowed. The association has the same direction and similar size under two classifiers, and stays at 0.71 or above against the mismatched suffix when any one target is dropped, but its significance depends on the frozen judge and on a target that proved to be a copy of the source. It is evidence for the similarity half of the starting hypothesis, from one lineage, and it needs replication on other sources and probe sets. Source-only scores, by contrast, rarely picked the behaviors that transfer best within a target.
+
+All of this is measured by classifier labels that a model audit does not support: the labelers confirmed between 13% and 77% of sampled positives, and two HarmBench classifiers share errors the labelers reject. The transfer decisions survive a change of classifier; the rates do not survive as harmful-compliance rates. For a defender the practical reading is narrow. Test the light fine-tunes of a source first, measure their similarity to it, always include a mismatched-suffix control, and validate the judge on the outputs it is scoring.
 
 ## Appendix A. Representation similarity and the first token position
 
-We compared each of five source models with its targets on 240 template-generated benign probes of three to seven words, fourteen source-target pairs in four lineages (Table 11). Hidden states were mean-pooled over every non-padding token at each layer. For column-centered matrices $X$ and $Y$, linear CKA is $\|X^\top Y\|_F^2/(\|X^\top X\|_F\|Y^\top Y\|_F)$ [@kornblith2019cka]. Figure 3 shows the profiles.
+We compared each of five source models with its targets on 240 template-generated benign probes of three to seven words, fourteen source-target pairs in four lineages (Table 14). Hidden states were mean-pooled over every non-padding token at each layer. For column-centered matrices $X$ and $Y$, linear CKA is $\|X^\top Y\|_F^2/(\|X^\top X\|_F\|Y^\top Y\|_F)$ [@kornblith2019cka]. Figure 4 shows the profiles.
 
-![Benign-probe CKA profiles for fourteen source-target pairs in five source groups and four lineages, mean-pooled over all tokens. The near-1.0 middle layers largely reflect the first token position (Table 10). No attack outcomes are plotted.](figures/benign_profiles.png)
+![Benign-probe CKA profiles for fourteen source-target pairs in five source groups and four lineages, mean-pooled over all tokens. The near-1.0 middle layers largely reflect the first token position (Table 13). No attack outcomes are plotted.](figures/benign_profiles.png)
 
 Under causal attention the first position does not see the rest of the probe, and it carries an outsized state. For three pairs we repeated the measurement pooling with and without position 0 (`experiments/results/cka_first_position_diagnostic.json`). The all-token means reproduce the profiles exactly. In the middle layers, position 0 supplies 99.5% of the pooled vector's norm in both lineages.
 
@@ -409,9 +535,9 @@ Table: Mean linear CKA over layers using all tokens or without position 0 (no po
 | Qwen2.5, TinySwallow | 0.982 | 0.975 | 0.972–0.993 | 0.965–0.995 |
 | Llama 3.2, Dolphin3.0 | 0.997 | 0.972 | 1.000–1.000 | 0.959–0.986 |
 
-For the BOS model, the middle-layer CKA of 1.000 is an artifact: the probes differ there mainly through a shared first-position state scaled by probe length. Profiles pooled this way therefore describe the pooling method more than the checkpoints, and similarity measurements should exclude position 0. Whether a corrected similarity predicts independently judged incremental compliance remains an open question. `experiments/evidence_inventory.json` records the counts and ranges used here.
+For the BOS model, the middle-layer CKA of 1.000 is an artifact: the probes differ there mainly through a shared first-position state scaled by probe length. Profiles pooled this way therefore describe the pooling method more than the checkpoints, and similarity measurements should exclude position 0. Section 7 tests whether the corrected measure predicts transfer across the derivatives of one source. `experiments/evidence_inventory.json` records the counts and ranges used here.
 
-The following table identifies the pairs in Figure 3. Abbreviations map to full checkpoint IDs in `experiments/lineage.yaml`.
+The following table identifies the pairs in Figure 4. Abbreviations map to full checkpoint IDs in `experiments/lineage.yaml`.
 
 Table: Source-target pairs in the benign CKA figure.
 
@@ -438,7 +564,7 @@ Table: Source-target pairs in the benign CKA figure.
 
 ## Appendix B. Reproduction
 
-The commands below rebuild the Qwen study from a frozen plan. The Granite study uses `experiments/study-granite41-v1.yaml` the same way. The `run` job executes search, generation, judging, audit sampling, and analysis. `docs/STUDY.md` gives the full execution protocol, and `docs/ADR.md` records the design decisions.
+The commands below rebuild the Qwen study from a frozen plan. The Granite, sweep and Gemma studies use `experiments/study-granite41-v1.yaml`, `experiments/study-qwen15-sweep-v1.yaml` and `experiments/study-gemma3-v1.yaml` the same way; the sweep's run job copies the parent's search and adds the similarity stage. The `run` job executes search, generation, judging, audit sampling, and analysis. `docs/STUDY.md` gives the full execution protocol, and `docs/ADR.md` records the design decisions.
 
 ```sh
 pip install -e ".[dev,models]"
@@ -457,6 +583,8 @@ python paper/build_results.py
 python -m lasa.power --out experiments/results/power_analysis.json
 python -m lasa.cka_diagnostic \
   --out experiments/results/cka_first_position_diagnostic.json
+python scripts/similarity_sensitivity.py reports/qwen15-sweep-v1 \
+  --out experiments/results/study-qwen15-sweep-v1/similarity_sensitivity.json
 ```
 
 ```{=latex}

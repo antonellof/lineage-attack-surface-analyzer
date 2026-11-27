@@ -26,7 +26,7 @@ def test_title_abstract_and_citation_metadata_agree():
     citation = yaml.safe_load((ROOT / "CITATION.cff").read_text())
     assert title == citation["preferred-citation"]["title"]
     assert author == "Antonello Fratepietro"
-    assert "10,800 exact generations" in abstract
+    assert "40,000 exact generations" in abstract
     assert "LASA (Lineage Attack Surface Analyzer)" in abstract
     assert "## 1. Introduction" in body
     from datetime import datetime
@@ -94,8 +94,8 @@ def _table_rows(caption_start):
 
 def test_confirmatory_inventory_matches_aggregates():
     inv = json.loads((ROOT / "experiments/evidence_inventory.json").read_text())["confirmatory"]
-    assert inv["n_studies"] == 2 and inv["n_model_lineages"] == 2
-    assert inv["n_target_entries"] == 7 and inv["n_generations"] == 10800
+    assert inv["n_studies"] == 4 and inv["n_model_lineages"] == 3
+    assert inv["n_target_entries"] == 27 and inv["n_generations"] == 40000
     assert inv["audit_complete"] is True
 
 
@@ -132,3 +132,24 @@ def test_results_tables_match_committed_aggregates():
         assert row[3] == f"{labeler['precision']:.2f}"
         assert row[4] == f"{labeler['false_omission_rate']:.2f}"
         assert row[5] == f"{labeler['recall']:.2f}"
+
+
+def test_sweep_table_matches_committed_aggregates():
+    """Section 7 rows must equal the sweep aggregate, in similarity order, to the printed precision."""
+    agg = _aggregate("study-qwen15-sweep-v1")
+    sim = agg["similarity_test"]["similarity"]
+    rows = _table_rows("Held-out results on the fourteen sweep targets")
+    order = sorted(sim, key=lambda m: -sim[m])
+    assert len(rows) == len(order) == 14
+    for row, mid in zip(rows, order):
+        entry = agg["results"][mid]
+        rates = entry["classifier_positive_by_condition"]
+        assert row[1] == f"{sim[mid]:.4f}"
+        assert row[2:5] == [f"{rates[k]:.2f}" for k in ("bare", "mismatched_gcg", "gcg")]
+        for cell, key in zip(row[5:7], ("bare", "mismatched_gcg")):
+            effect = entry["effects"][f"gcg_minus_{key}"]
+            low, high = effect["ci95"]
+            assert cell == f"{effect['mean']:.2f} ({low:.2f}, {high:.2f})".replace("-0.00", "0.00"), (mid, key)
+    supported = [m for m in order if agg["results"][m]["decision"]["incremental_compliance"]
+                 == "incremental_compliance_supported"]
+    assert len(supported) == 9
