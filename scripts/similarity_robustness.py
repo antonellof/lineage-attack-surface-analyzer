@@ -74,10 +74,18 @@ def load_probe_sets(plan):
     return sets, record
 
 
-def checkpoint_path(model_id, revision, entry):
-    """Cached snapshot at the frozen revision, with every weight file matching the plan's digest."""
-    from huggingface_hub import snapshot_download
-    path = Path(snapshot_download(model_id, revision=revision, local_files_only=True))
+def checkpoint_path(model_id, revision, entry, fetched):
+    """Snapshot at the frozen revision, with every weight file matching the plan's digest.
+
+    Missing files are downloaded. Weight files this run downloads are listed in
+    `fetched` so the caller can remove them again; cached ones are never touched.
+    """
+    from huggingface_hub import snapshot_download, try_to_load_from_cache
+    names = [f["file"] for f in entry["files"] if f["file"].endswith((".safetensors", ".json"))]
+    absent = [n for n in names if n.endswith(".safetensors")
+              and not isinstance(try_to_load_from_cache(model_id, n, revision=revision), str)]
+    path = Path(snapshot_download(model_id, revision=revision, allow_patterns=names))
+    fetched.extend(path / n for n in absent)
     for f in entry["files"]:
         if f["file"].endswith(".safetensors"):
             h = hashlib.sha256()
@@ -87,6 +95,14 @@ def checkpoint_path(model_id, revision, entry):
             if h.hexdigest() != f["sha256"]:
                 raise ValueError(f"{model_id}: {f['file']} differs from the frozen digest")
     return path
+
+
+def discard(fetched):
+    """Delete the weight files (cache link and blob) that this run downloaded."""
+    while fetched:
+        link = fetched.pop()
+        link.resolve().unlink(missing_ok=True)
+        link.unlink(missing_ok=True)
 
 
 def encode(tok, probes, chat, max_length):
@@ -156,14 +172,20 @@ def main() -> int:
     revisions = {v["model_id"]: v["revision"] for v in [cfg["base"], *cfg["variants"]]}
     device = "mps" if torch.backends.mps.is_available() else ("cuda" if torch.cuda.is_available() else "cpu")
 
+    fetched = []
+
     def load(model_id):
         # An exact copy carries the source's weights under another id.
         real = source_id if model_id in copies else model_id
-        path = checkpoint_path(real, revisions[real], frozen_plan["models"][real])
-        return AutoModelForCausalLM.from_pretrained(path, dtype=torch.float32, local_files_only=True,
-                                                    use_safetensors=True).to(device).eval()
+        new = []
+        path = checkpoint_path(real, revisions[real], frozen_plan["models"][real], new)
+        model = AutoModelForCausalLM.from_pretrained(path, dtype=torch.float32, local_files_only=True,
+                                                     use_safetensors=True).to(device).eval()
+        if real != source_id:
+            discard(new)  # loaded into memory; the downloaded copy is no longer needed
+        return model
 
-    source_path = checkpoint_path(source_id, revisions[source_id], frozen_plan["models"][source_id])
+    source_path = checkpoint_path(source_id, revisions[source_id], frozen_plan["models"][source_id], fetched)
     tok = AutoTokenizer.from_pretrained(source_path, local_files_only=True)
     pad = tok.pad_token_id if tok.pad_token_id is not None else tok.eos_token_id
     inputs, truncated = {}, {}
